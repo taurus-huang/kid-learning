@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>學習時鐘 🕐</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@400;600;700;800&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --sky: #e8f4fd;
+    --cloud: #ffffff;
+    --sun: #ffd93d;
+    --grass: #6bcb77;
+    --grass-dark: #4d9e57;
+    --blue: #4d96ff;
+    --blue-dark: #2563eb;
+    --pink: #ff6b9d;
+    --pink-dark: #d63384;
+    --orange: #ff9f43;
+    --purple: #a29bfe;
+    --red: #ff6b6b;
+    --teal: #00cec9;
+    --clock-face: #fffdf0;
+    --clock-border: #ffd93d;
+    --hour-hand: #ff6b6b;
+    --minute-hand: #4d96ff;
+    --shadow: rgba(0,0,0,0.12);
+
+    /* 數字時間色系 */
+    --hour-red: #ff5252;
+    --hour-red-dark: #c62828;
+    --hour-red-bg1: #fff5f5;
+    --hour-red-bg2: #ffdddd;
+    --min-blue: #4d96ff;
+    --min-blue-dark: #1a5fcc;
+    --min-blue-bg1: #f0f7ff;
+    --min-blue-bg2: #d6eaff;
+
+    /* 面板 / 時鐘框色系 → 綠色 */
+    --panel-color: #22c55e;
+    --panel-dark: #15803d;
+    --panel-light: #dcfce7;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(180deg, #b8e4ff 0%, #d4f1f9 40%, #e8f4fd 70%, #c8f0c0 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Decorative background */
+  .bg-deco {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    overflow: hidden;
+  }
+  .cloud {
+    position: absolute;
+    background: white;
+    border-radius: 50px;
+    opacity: 0.85;
+    animation: floatCloud linear infinite;
+  }
+  .cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+  }
+  .cloud-1 { width:120px; height:40px; top:8%; left:-140px; animation-duration:28s; animation-delay:-5s; }
+  .cloud-1::before { width:60px; height:55px; top:-28px; left:18px; }
+  .cloud-1::after { width:45px; height:40px; top:-20px; left:55px; }
+  .cloud-2 { width:90px; height:30px; top:20%; left:-110px; animation-duration:38s; animation-delay:-15s; opacity:0.6; }
+  .cloud-2::before { width:45px; height:42px; top:-22px; left:12px; }
+  .cloud-2::after { width:35px; height:30px; top:-15px; left:40px; }
+  .cloud-3 { width:150px; height:48px; top:5%; left:-170px; animation-duration:45s; animation-delay:-30s; }
+  .cloud-3::before { width:70px; height:65px; top:-35px; left:22px; }
+  .cloud-3::after { width:55px; height:50px; top:-28px; left:72px; }
+
+  @keyframes floatCloud {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(100vw + 200px)); }
+  }
+
+  .star {
+    position: absolute;
+    font-size: 1.5rem;
+    animation: twinkle 2s ease-in-out infinite alternate;
+    opacity: 0.7;
+  }
+  @keyframes twinkle {
+    from { transform: scale(1) rotate(-10deg); opacity: 0.5; }
+    to { transform: scale(1.3) rotate(10deg); opacity: 1; }
+  }
+
+  /* Layout */
+  .page-wrapper {
+    position: relative; z-index: 1;
+    width: 100%;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+
+  /* ── 橫式：時鐘左、數字右上、發音右下 ── */
+  @media (orientation: landscape) {
+    .page-wrapper {
+      padding: 20px 24px;
+    }
+    .panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr auto;
+      grid-template-areas:
+        "clock digital"
+        "clock speech";
+      gap: 20px;
+      flex: 1;
+      min-height: 0;
+    }
+    #box-clock   { grid-area: clock;   display: flex; flex-direction: column; justify-content: center; min-height: 0; }
+    #box-digital { grid-area: digital; display: flex; flex-direction: column; justify-content: center; min-height: 0; }
+    #box-speech  { grid-area: speech;  margin-top: 0; }
+    .clock-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+    }
+    svg.clock-svg {
+      width: auto;
+      height: 100%;
+      max-width: 100%;
+      max-height: min(55vw, 88dvh);
+    }
+    .digit-box {
+      width: clamp(72px, 12vw, 160px);
+      height: clamp(70px, 11vw, 150px);
+      font-size: clamp(2.2rem, 6vw, 5.5rem);
+    }
+    .colon {
+      font-size: clamp(2rem, 5.5vw, 5rem);
+      height: auto;
+      margin-top: 0;
+      padding-bottom: 0;
+      padding-top: 20px;
+      align-self: center;
+    }
+    .ctrl-btn {
+      width: clamp(28px, 4vw, 52px);
+      height: clamp(28px, 4vw, 52px);
+      font-size: clamp(0.8rem, 1.6vw, 1.4rem);
+    }
+    .time-sentence .big-time {
+      font-size: clamp(1.4rem, 3.5vw, 2.8rem);
+    }
+  }
+
+  /* ── 直式：三框縱排，間距與邊界全部相等 ── */
+  @media (orientation: portrait) {
+    .page-wrapper {
+      padding: 0 24px;
+      justify-content: space-evenly;   /* 自動分配所有垂直空間 */
+    }
+    .panels {
+      /* 展平為透明容器，三個框直接成為 page-wrapper 的 flex 子項 */
+      display: contents;
+    }
+    #box-clock {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #box-digital {
+      /* 維持預設 block */
+    }
+    #box-speech {
+      margin-top: 0;
+    }
+    .clock-wrap {
+      margin-bottom: 0;
+    }
+    svg.clock-svg {
+      width: min(56vw, 260px);
+      height: auto;
+    }
+    .digit-box {
+      width: clamp(64px, 22vw, 110px);
+      height: clamp(62px, 20vw, 100px);
+      font-size: clamp(2rem, 10vw, 3.8rem);
+    }
+    .colon {
+      font-size: clamp(2rem, 9vw, 3.5rem);
+      margin-top: 0;
+      padding-bottom: 0;
+      padding-top: 20px;
+      height: auto;
+      align-self: center;
+    }
+    .ctrl-btn {
+      width: clamp(30px, 9vw, 42px);
+      height: clamp(30px, 9vw, 42px);
+      font-size: clamp(0.8rem, 3.5vw, 1.1rem);
+    }
+    .time-sentence {
+      margin-top: 0;
+      padding: 10px 16px;
+    }
+    .time-sentence .big-time {
+      font-size: clamp(1.4rem, 7vw, 2.2rem);
+    }
+    .panel {
+      padding: 14px 16px;
+    }
+    .digital-display {
+      margin-bottom: 0;
+    }
+  }
+
+  /* Main panels（共用基底，方向各自覆蓋） */
+  .panels {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .panel {
+    background: white;
+    border-radius: 28px;
+    padding: 20px 20px 20px;
+    box-shadow: 0 8px 32px var(--shadow), 0 2px 8px rgba(0,0,0,0.06);
+    border: 3px solid transparent;
+    position: relative;
+    overflow: visible;
+  }
+  .panel-digital { border-color: var(--panel-color); }
+  .panel-clock   { border-color: var(--panel-color); }
+
+  .panel-label {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .panel-digital .panel-label { color: var(--pink-dark); }
+  .panel-clock   .panel-label { color: var(--blue-dark); }
+
+  /* ── Digital Panel ── */
+  .digital-display {
+    display: flex;
+    align-items: center;      /* 垂直置中對齊所有欄 */
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  /* 時 或 分 的整體欄（標籤 + 箭頭上 + 數字框 + 箭頭下） */
+  .digit-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .digit-col-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #888;
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+
+  /* 分鐘：上下箭頭排成兩組並列 */
+  .min-arrows {
+    display: flex;
+    gap: 6px;
+  }
+
+  /* 數字顯示框：共用基底 */
+  .digit-box {
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 700;
+    box-shadow: 0 4px 12px var(--shadow), inset 0 2px 6px rgba(255,255,255,0.8);
+    user-select: none;
+    transition: transform 0.15s;
+    border: 3px solid transparent;
+  }
+  .digit-box:active { transform: scale(0.95); }
+
+  /* 時：紅色系 */
+  .digit-box-hour {
+    background: linear-gradient(135deg, var(--hour-red-bg1), var(--hour-red-bg2));
+    border-color: var(--hour-red);
+    color: var(--hour-red-dark);
+    box-shadow: 0 4px 12px rgba(255,82,82,0.2), inset 0 2px 6px rgba(255,255,255,0.8);
+  }
+
+  /* 分：藍色系，無分隔線 */
+  .digit-box-min {
+    background: linear-gradient(135deg, var(--min-blue-bg1), var(--min-blue-bg2));
+    border-color: var(--min-blue);
+    color: var(--min-blue-dark);
+    box-shadow: 0 4px 12px rgba(77,150,255,0.2), inset 0 2px 6px rgba(255,255,255,0.8);
+  }
+
+  /* 冒號：共用基底 */
+  .colon {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 700;
+    color: #555;
+    line-height: 1;
+    animation: blinkColon 1s step-end infinite;
+    display: flex;
+    align-items: center;
+  }
+  @keyframes blinkColon {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  /* 按鈕：共用基底 */
+  .ctrl-btn {
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.12s, box-shadow 0.12s;
+    box-shadow: 0 4px 10px var(--shadow);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+  }
+  .ctrl-btn:active { transform: scale(0.88); box-shadow: 0 2px 5px var(--shadow); }
+  /* 時的按鈕：紅色系 */
+  .btn-up-hour   { background: var(--hour-red); color: white; }
+  .btn-down-hour { background: var(--hour-red-bg2); color: var(--hour-red-dark); }
+  /* 分的按鈕：藍色系 */
+  .btn-up-min    { background: var(--min-blue); color: white; }
+  .btn-down-min  { background: var(--min-blue-bg2); color: var(--min-blue-dark); }
+  /* 舊class保留相容 */
+  .btn-up   { background: var(--panel-color); color: white; }
+  .btn-down { background: var(--panel-light); color: var(--panel-dark); }
+
+  /* ── Clock Panel ── */
+  .clock-wrap {
+    display: flex;
+    justify-content: center;
+  }
+
+  svg.clock-svg {
+    cursor: default;
+    filter: drop-shadow(0 8px 24px rgba(34,197,94,0.25));
+    touch-action: none;
+    user-select: none;
+    display: block;
+  }
+
+  .clock-hint {
+    text-align: center;
+    font-size: 0.82rem;
+    color: #888;
+    font-weight: 600;
+    line-height: 1.5;
+    background: var(--panel-light);
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+  .clock-hint span { display: block; }
+
+  /* Sync badge */
+  .sync-badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--panel-color);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(34,197,94,0.4);
+    letter-spacing: 1px;
+    pointer-events: none;
+  }
+
+  /* Time sentence */
+  .time-sentence {
+    background: white;
+    border-radius: 28px;
+    padding: 20px 20px;
+    box-shadow: 0 8px 32px var(--shadow), 0 2px 8px rgba(0,0,0,0.06);
+    border: 3px solid var(--panel-color);
+    position: relative;
+    text-align: center;
+    margin-top: 24px;
+    transition: transform 0.12s, box-shadow 0.12s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .time-sentence:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 36px var(--shadow), 0 4px 12px rgba(34,197,94,0.2);
+  }
+  .time-sentence:active {
+    transform: scale(0.97);
+  }
+  .time-sentence.speaking {
+    box-shadow: 0 0 0 4px rgba(34,197,94,0.3), 0 8px 32px var(--shadow);
+    border-color: #16a34a;
+  }
+  .time-sentence p {
+    font-family: 'Baloo 2', cursive;
+    font-weight: 700;
+    color: #15803d;
+  }
+  .time-sentence .big-time {
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    color: #15803d;
+  }
+
+  /* Fun animals decoration */
+  .deco-animal {
+    position: absolute;
+    font-size: 2rem;
+    animation: wiggle 2s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  @keyframes wiggle {
+    from { transform: rotate(-12deg) scale(1); }
+    to   { transform: rotate(12deg) scale(1.1); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background decorations -->
+<div class="bg-deco">
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="cloud cloud-3"></div>
+  <div class="star" style="top:12%;left:5%;animation-delay:0s;">⭐</div>
+  <div class="star" style="top:18%;right:8%;animation-delay:0.6s;font-size:1.1rem;">✨</div>
+  <div class="star" style="top:35%;left:3%;animation-delay:1.2s;font-size:1rem;">🌟</div>
+  <div class="star" style="top:55%;right:5%;animation-delay:0.3s;font-size:1.3rem;">⭐</div>
+</div>
+
+<div class="page-wrapper">
+
+  <div class="panels">
+
+    <!-- 圖形時鐘 -->
+    <div class="panel panel-clock" id="box-clock">
+      <div class="sync-badge">🕐 圖形時鐘</div>
+
+      <div class="clock-wrap">
+        <svg class="clock-svg" id="clock-svg" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
+          <!-- Shadow -->
+          <ellipse cx="130" cy="250" rx="80" ry="10" fill="rgba(0,0,0,0.08)"/>
+          <!-- Outer ring -->
+          <circle cx="130" cy="130" r="118" fill="#ffd93d" opacity="0.15"/>
+          <circle cx="130" cy="130" r="115" fill="none" stroke="#f59e0b" stroke-width="6"/>
+          <!-- Face -->
+          <circle cx="130" cy="130" r="108" fill="#fffdf0"/>
+          <!-- Decorative dots at 5-min intervals -->
+          <g id="tick-marks"></g>
+          <!-- Hour numbers -->
+          <g id="hour-numbers" font-family="'Baloo 2',cursive" font-size="24" font-weight="700" fill="#15803d" text-anchor="middle" dominant-baseline="central"></g>
+          <!-- Minute hand -->
+          <line id="hand-min" x1="130" y1="130" x2="130" y2="42"
+            stroke="#4d96ff" stroke-width="5" stroke-linecap="round"
+            style="transform-origin:130px 130px; transform:rotate(0deg);"/>
+          <!-- Hour hand -->
+          <line id="hand-hour" x1="130" y1="130" x2="130" y2="68"
+            stroke="#ff6b6b" stroke-width="8" stroke-linecap="round"
+            style="transform-origin:130px 130px; transform:rotate(0deg);"/>
+          <!-- Center dot -->
+          <circle cx="130" cy="130" r="8" fill="#ff6b6b"/>
+          <circle cx="130" cy="130" r="4" fill="white"/>
+          <!-- Drag hint circles (invisible but large hit area) -->
+          <circle id="drag-min-zone" cx="130" cy="42" r="16" fill="transparent" cursor="grab"/>
+          <circle id="drag-hour-zone" cx="130" cy="68" r="16" fill="transparent" cursor="grab"/>
+        </svg>
+      </div>
+
+    </div>
+
+    <!-- 數字時間 -->
+    <div class="panel panel-digital" id="box-digital">
+      <div class="sync-badge">🔢 數字時間</div>
+
+      <div class="digital-display">
+
+        <!-- 時 -->
+        <div class="digit-col">
+          <div class="digit-col-label">時</div>
+          <button class="ctrl-btn btn-up-hour" id="hour-up" aria-label="時+1">▲</button>
+          <div class="digit-box digit-box-hour" id="d-hour">12</div>
+          <button class="ctrl-btn btn-down-hour" id="hour-down" aria-label="時-1">▼</button>
+        </div>
+
+        <!-- 冒號 -->
+        <div class="colon">:</div>
+
+        <!-- 分（合併顯示，兩組箭頭） -->
+        <div class="digit-col">
+          <div class="digit-col-label">分</div>
+          <!-- 上方：十位▲ 個位▲ -->
+          <div class="min-arrows">
+            <button class="ctrl-btn btn-up-min" id="min10-up" aria-label="分十位+1">▲</button>
+            <button class="ctrl-btn btn-up-min" id="min1-up"  aria-label="分個位+1">▲</button>
+          </div>
+          <!-- 合併數字框 -->
+          <div class="digit-box digit-box-min" id="d-min">00</div>
+          <!-- 下方：十位▼ 個位▼ -->
+          <div class="min-arrows">
+            <button class="ctrl-btn btn-down-min" id="min10-down" aria-label="分十位-1">▼</button>
+            <button class="ctrl-btn btn-down-min" id="min1-down"  aria-label="分個位-1">▼</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- 發音 -->
+    <div class="time-sentence" id="box-speech">
+      <div class="sync-badge">📢 發音</div>
+      <p><span class="big-time" id="time-text">十二點整</span></p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── State ──
+let hour = 12;
+let minute = 0;
+
+// ── DOM refs ──
+const dHour   = document.getElementById('d-hour');
+const dMin    = document.getElementById('d-min');
+const handH   = document.getElementById('hand-hour');
+const handM   = document.getElementById('hand-min');
+const dragHZ  = document.getElementById('drag-hour-zone');
+const dragMZ  = document.getElementById('drag-min-zone');
+const svg     = document.getElementById('clock-svg');
+const timeText = document.getElementById('time-text');
+
+// ── Build clock face ──
+(function buildFace() {
+  const ticks = document.getElementById('tick-marks');
+  const nums  = document.getElementById('hour-numbers');
+  const cx = 130, cy = 130, r = 108;
+
+  for (let i = 0; i < 60; i++) {
+    const ang = (i / 60) * 2 * Math.PI - Math.PI/2;
+    const isMaj = i % 5 === 0;
+    const r1 = r - 4, r2 = isMaj ? r - 16 : r - 9;
+    const x1 = cx + r1 * Math.cos(ang), y1 = cy + r1 * Math.sin(ang);
+    const x2 = cx + r2 * Math.cos(ang), y2 = cy + r2 * Math.sin(ang);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('stroke', isMaj ? '#f59e0b' : '#fcd34d');
+    line.setAttribute('stroke-width', isMaj ? 2.5 : 1.5);
+    line.setAttribute('stroke-linecap','round');
+    ticks.appendChild(line);
+  }
+  for (let n = 1; n <= 12; n++) {
+    const ang = (n / 12) * 2 * Math.PI - Math.PI/2;
+    const nr = r - 38;
+    const x = cx + nr * Math.cos(ang), y = cy + nr * Math.sin(ang);
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', x); t.setAttribute('y', y);
+    t.textContent = n;
+    nums.appendChild(t);
+  }
+})();
+
+// ── Render ──
+function render() {
+  // Digital
+  dHour.textContent = String(hour).padStart(2,'0');
+  dMin.textContent  = String(minute).padStart(2,'0');
+
+  // Hands
+  const hDeg = ((hour % 12) / 12) * 360 + (minute / 60) * 30;
+  const mDeg = (minute / 60) * 360;
+  handH.style.transform = `rotate(${hDeg}deg)`;
+  handM.style.transform = `rotate(${mDeg}deg)`;
+
+  // Update drag zones
+  updateDragZone(dragHZ, hDeg, 68);
+  updateDragZone(dragMZ, mDeg, 42);
+
+  // Sentence
+  timeText.textContent = toChineseTime(hour, minute);
+}
+
+function updateDragZone(el, deg, handLen) {
+  const rad = (deg - 90) * Math.PI / 180;
+  const x = 130 + handLen * Math.cos(rad);
+  const y = 130 + handLen * Math.sin(rad);
+  el.setAttribute('cx', x);
+  el.setAttribute('cy', y);
+}
+
+// ── Chinese time text ──
+const cnNums = ['零','一','二','三','四','五','六','七','八','九','十','十一','十二'];
+function toChineseTime(h, m) {
+  const hStr = cnNums[h] + '點';
+  if (m === 0) return hStr + '整';
+  if (m === 30) return hStr + '半';
+  if (m < 10) return hStr + '零' + cnNums[m] + '分';
+  const tens = Math.floor(m / 10), ones = m % 10;
+  const mStr = (tens === 1 ? '十' : cnNums[tens] + '十') + (ones ? cnNums[ones] : '') + '分';
+  return hStr + mStr;
+}
+
+// ── Digital buttons ──
+function makeRepeat(fn) {
+  let timer, interval;
+  function start() {
+    fn();
+    timer = setTimeout(() => { interval = setInterval(fn, 80); }, 400);
+  }
+  function stop() { clearTimeout(timer); clearInterval(interval); }
+  return { start, stop };
+}
+
+function addHour(d) { hour = ((hour - 1 + d + 12) % 12) + 1; render(); }
+
+function addMin10(d) {
+  // 十位 0–5，溢出時進退小時，個位不動
+  const tens = Math.floor(minute / 10);
+  const ones = minute % 10;
+  const newTens = tens + d;
+  if (newTens >= 6) {
+    minute = 0 * 10 + ones; // 十位歸0
+    hour = ((hour - 1 + 1 + 12) % 12) + 1;
+  } else if (newTens < 0) {
+    minute = 5 * 10 + ones; // 十位到5
+    hour = ((hour - 1 - 1 + 12) % 12) + 1;
+  } else {
+    minute = newTens * 10 + ones;
+  }
+  render();
+}
+
+function addMin1(d) {
+  // 個位 0–9，溢出時進退十位；十位溢出再進退小時
+  const totalMinutes = minute + d;
+  if (totalMinutes >= 60) {
+    minute = totalMinutes - 60;
+    hour = ((hour - 1 + 1 + 12) % 12) + 1;
+  } else if (totalMinutes < 0) {
+    minute = totalMinutes + 60;
+    hour = ((hour - 1 - 1 + 12) % 12) + 1;
+  } else {
+    minute = totalMinutes;
+  }
+  render();
+}
+
+[
+  ['hour-up',   () => addHour(1)],
+  ['hour-down', () => addHour(-1)],
+  ['min10-up',  () => addMin10(1)],
+  ['min10-down',() => addMin10(-1)],
+  ['min1-up',   () => addMin1(1)],
+  ['min1-down', () => addMin1(-1)],
+].forEach(([id, fn]) => {
+  const btn = document.getElementById(id);
+  const rep = makeRepeat(fn);
+  btn.addEventListener('pointerdown', e => { e.preventDefault(); rep.start(); });
+  btn.addEventListener('pointerup',   rep.stop);
+  btn.addEventListener('pointerleave',rep.stop);
+});
+
+// ── Clock drag ──
+let dragging = null;    // 'hour' | 'minute'
+let dragPrevDeg = null; // 分針：上一幀角度，用於計算差值
+let dragMinFrac = 0;    // 分針：累積的分鐘小數，平滑處理
+
+function getSvgPoint(e) {
+  const rect = svg.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const scaleX = 260 / rect.width;
+  const scaleY = 260 / rect.height;
+  return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+}
+
+function getAngleDeg(pt) {
+  const dx = pt.x - 130, dy = pt.y - 130;
+  return (Math.atan2(dy, dx) * 180 / Math.PI + 90 + 360) % 360;
+}
+
+function hitTest(pt, zone) {
+  const cx = parseFloat(zone.getAttribute('cx'));
+  const cy = parseFloat(zone.getAttribute('cy'));
+  const dx = pt.x - cx, dy = pt.y - cy;
+  return Math.sqrt(dx*dx + dy*dy) < 26;
+}
+
+// 計算兩角度之間的最短差值（-180~180），正=順時針，負=逆時針
+function angleDelta(prev, curr) {
+  let d = curr - prev;
+  if (d > 180)  d -= 360;
+  if (d < -180) d += 360;
+  return d;
+}
+
+function onPointerDown(e) {
+  const pt = getSvgPoint(e);
+  if (hitTest(pt, dragHZ)) {
+    dragging = 'hour';
+    svg.setPointerCapture?.(e.pointerId);
+  } else if (hitTest(pt, dragMZ)) {
+    dragging = 'minute';
+    dragPrevDeg = getAngleDeg(pt);
+    dragMinFrac = minute; // 以目前分鐘為起點累積
+    svg.setPointerCapture?.(e.pointerId);
+  }
+}
+
+function onPointerMove(e) {
+  if (!dragging) return;
+  e.preventDefault();
+  const deg = getAngleDeg(getSvgPoint(e));
+
+  if (dragging === 'hour') {
+    // 時針：直接 snap 到最近整點，不影響分鐘
+    hour = Math.round(deg / 30) % 12 || 12;
+
+  } else {
+    // 分針：用角度差累積分鐘，溢出時進退小時（與 addMin1 邏輯相同）
+    const delta = angleDelta(dragPrevDeg, deg); // 度
+    dragPrevDeg = deg;
+    dragMinFrac += delta / 6; // 360°=60分，故1°=1/6分
+
+    // 取整數部分作為分鐘變化量
+    const steps = Math.trunc(dragMinFrac - minute);
+    if (steps !== 0) {
+      const totalMinutes = minute + steps;
+      if (totalMinutes >= 60) {
+        minute = totalMinutes - 60;
+        hour = ((hour - 1 + 1 + 12) % 12) + 1;
+      } else if (totalMinutes < 0) {
+        minute = totalMinutes + 60;
+        hour = ((hour - 1 - 1 + 12) % 12) + 1;
+      } else {
+        minute = totalMinutes;
+      }
+      // 同步 dragMinFrac 整數部分，保留小數
+      dragMinFrac = minute + (dragMinFrac - Math.trunc(dragMinFrac));
+    }
+  }
+  render();
+}
+
+function onPointerUp() { dragging = null; dragPrevDeg = null; }
+
+svg.addEventListener('pointerdown', onPointerDown);
+svg.addEventListener('pointermove', onPointerMove);
+svg.addEventListener('pointerup',   onPointerUp);
+svg.addEventListener('pointercancel', onPointerUp);
+// Touch fallback
+svg.addEventListener('touchstart', e => { onPointerDown(e); }, { passive: false });
+svg.addEventListener('touchmove',  e => { onPointerMove(e); }, { passive: false });
+svg.addEventListener('touchend',   onPointerUp);
+
+// ── Init ──
+render();
+
+// ── TTS 發音 ──
+const timeSentenceEl = document.querySelector('.time-sentence');
+timeSentenceEl.style.cursor = 'pointer';
+timeSentenceEl.addEventListener('click', () => {
+  if (!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(timeText.textContent);
+  utt.lang = 'zh-TW';
+  utt.rate = 0.85;
+  utt.onstart = () => timeSentenceEl.classList.add('speaking');
+  utt.onend   = () => timeSentenceEl.classList.remove('speaking');
+  utt.onerror = () => timeSentenceEl.classList.remove('speaking');
+  speechSynthesis.speak(utt);
+});
+</script>
+</body>
+</html>
