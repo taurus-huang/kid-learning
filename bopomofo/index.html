@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>注音符號學習樂園</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Noto+Sans+TC:wght@400;700&display=swap');
+:root{
+  --ini:#E84040;--ini-bg:#FFF0F0;--ini-br:#FFBABA;
+  --med:#7048D4;--med-bg:#F3EFFF;--med-br:#C4AFFE;
+  --fin:#0FA870;--fin-bg:#EAFAF4;--fin-br:#80DDB8;
+  --page:#FFF9F0;--dark:#2D2D2D;--mid:#636E72;
+  --fnt:'Nunito','Noto Sans TC',sans-serif;
+  --fzh:'Noto Sans TC',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fnt);background:var(--page);min-height:100vh;color:var(--dark)}
+header{background:linear-gradient(135deg,#E84040,#7048D4 50%,#0FA870);padding:12px 20px;text-align:center;color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+header h1{font-size:clamp(1.1rem,4vw,1.7rem);font-weight:800;letter-spacing:.04em}
+header p{font-size:.8rem;opacity:.88;margin-top:2px}
+.legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;padding:8px 16px;background:#fff;border-bottom:1px solid #EEE}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:.78rem;font-weight:700}
+.leg-dot{width:11px;height:11px;border-radius:50%}
+.layout{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 96px)}
+@media(max-width:660px){
+  .layout{grid-template-columns:1fr;height:auto}
+  .lp{max-height:46vh}
+  .rp{min-height:54vh}
+}
+.lp{overflow-y:auto;padding:10px 10px 16px;border-right:2px solid #EDEDED;background:#fff}
+.lp::-webkit-scrollbar{width:4px}
+.lp::-webkit-scrollbar-thumb{background:#DDD;border-radius:4px}
+.grp{margin-bottom:6px}
+.glabel{font-size:.68rem;font-weight:800;letter-spacing:.1em;padding:3px 8px;border-radius:6px;display:inline-block;margin-bottom:5px}
+.gi .glabel{background:var(--ini-bg);color:var(--ini)}
+.gm .glabel{background:var(--med-bg);color:var(--med)}
+.gf .glabel{background:var(--fin-bg);color:var(--fin)}
+.grow{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:2px}
+.bc{width:50px;height:50px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.45rem;font-weight:700;cursor:pointer;border:2px solid transparent;transition:transform .12s,box-shadow .12s;user-select:none;-webkit-tap-highlight-color:transparent}
+.bc:hover{transform:scale(1.1)}
+.bc:active{transform:scale(.93)}
+.bc.i{background:var(--ini-bg);color:var(--ini);border-color:var(--ini-br)}
+.bc.m{background:var(--med-bg);color:var(--med);border-color:var(--med-br)}
+.bc.f{background:var(--fin-bg);color:var(--fin);border-color:var(--fin-br)}
+.bc.sel.i{border-color:var(--ini);box-shadow:0 0 0 3px rgba(232,64,64,.28);transform:scale(1.12)}
+.bc.sel.m{border-color:var(--med);box-shadow:0 0 0 3px rgba(112,72,212,.28);transform:scale(1.12)}
+.bc.sel.f{border-color:var(--fin);box-shadow:0 0 0 3px rgba(15,168,112,.28);transform:scale(1.12)}
+.rp{overflow-y:auto;background:var(--page);display:flex;align-items:flex-start;justify-content:center;padding:14px}
+.hint{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:260px;color:var(--mid);text-align:center;padding:20px}
+.hint .ico{font-size:3rem;margin-bottom:10px}
+.hint p{font-size:.9rem;line-height:1.7}
+.dcard{background:#fff;border-radius:20px;padding:18px;width:100%;max-width:340px;box-shadow:0 4px 22px rgba(0,0,0,.09);animation:fu .22s ease}
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.sbox{background:#F7F8FA;border-radius:13px;padding:12px;margin-bottom:12px}
+.stitle{font-size:.7rem;font-weight:800;color:var(--mid);letter-spacing:.08em;margin-bottom:8px}
+.svg-wrap{display:flex;justify-content:center}
+.imgbox{border-radius:14px;overflow:hidden;border:2px solid #EEE;margin-bottom:12px;background:#F4F6FF}
+.imgarea{width:100%;height:160px;display:flex;align-items:center;justify-content:center}
+.imgarea img{width:130px;height:130px;object-fit:contain}
+.wordrow{display:flex;align-items:center;gap:6px;padding:10px 14px;background:#F7F8FA;border-top:1px solid #EEE;flex-wrap:wrap;justify-content:center}
+.charblock{display:flex;flex-direction:row;align-items:center;gap:2px}
+.hz{font-size:1.9rem;font-weight:700;font-family:var(--fzh);line-height:1}
+.bpcol{display:flex;flex-direction:column;align-items:center}
+.bpchars{display:flex;flex-direction:column;align-items:center;font-size:.82rem;font-family:var(--fzh);color:#333;line-height:1.25}
+.bpchars span{display:block;text-align:center}
+.tm-side{display:flex;flex-direction:row;align-items:flex-end}
+.tone-r{font-size:.62rem;color:#888;margin-bottom:1px;align-self:flex-end}
+.tm-top{display:flex;flex-direction:column;align-items:center}
+.tone-t{font-size:.62rem;color:#888;line-height:1}
+@keyframes ds{from{stroke-dashoffset:var(--dl)}to{stroke-dashoffset:0}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🌈 注音符號學習樂園</h1>
+  <p>點選注音符號，聆聽發音、學習筆劃！</p>
+</header>
+<div class="legend">
+  <div class="legend-item"><div class="leg-dot" style="background:#E84040"></div>聲母</div>
+  <div class="legend-item"><div class="leg-dot" style="background:#7048D4"></div>介母</div>
+  <div class="legend-item"><div class="leg-dot" style="background:#0FA870"></div>韻母</div>
+</div>
+<div class="layout">
+  <div class="lp" id="lp"></div>
+  <div class="rp" id="rp">
+    <div class="hint"><div class="ico">👆</div><p>請點選左邊的<br>注音符號卡<br>開始學習！</p></div>
+  </div>
+</div>
+
+<script>
+const TONE = {'1':'','2':'ˊ','3':'ˇ','4':'ˋ','0':'·'};
+
+const BOPO = [
+  // ── 聲母 ──
+  {sym:'ㄅ',type:'i',name:'布丁',  ec:'1f36e',
+   rd:[{h:'布',p:['ㄅ','ㄨ'],t:'4'},{h:'丁',p:['ㄉ','ㄧ','ㄥ'],t:'1'}],
+   sk:['M 34 20 L 28 36 L 76 36 Q 70 70 60 80 L 46 74']},
+  {sym:'ㄆ',type:'i',name:'蘋果',  ec:'1f34e',
+   rd:[{h:'蘋',p:['ㄆ','ㄧ','ㄥ'],t:'2'},{h:'果',p:['ㄍ','ㄨ','ㄛ'],t:'3'}],
+   sk:['M 34 20 L 28 36 H 74 Q 60 64 26 80', 'M 32 46 Q 56 60 76 80']},
+  {sym:'ㄇ',type:'i',name:'貓咪',  ec:'1f431',
+   rd:[{h:'貓',p:['ㄇ','ㄠ'],t:'1'},{h:'咪',p:['ㄇ','ㄧ'],t:'1'}],
+   sk:['M 20 20 V 80', 'M 20 20 H 80 V 80']},
+  {sym:'ㄈ',type:'i',name:'房子',  ec:'1f3e0',
+   rd:[{h:'房',p:['ㄈ','ㄤ'],t:'2'},{h:'子',p:['ㄗ'],t:'0'}],
+   sk:['M 20 20 H 80', 'M 20 20 L 20 66 Q 20 80 36 80 H 80']},
+  {sym:'ㄉ',type:'i',name:'蛋糕',  ec:'1f382',
+   rd:[{h:'蛋',p:['ㄉ','ㄢ'],t:'4'},{h:'糕',p:['ㄍ','ㄠ'],t:'1'}],
+   sk:['M 30 20 L 24 38 L 80 38 Q 74 70 66 80 L 54 76', 'M 52 38 Q 40 68 20 80']},
+  {sym:'ㄊ',type:'i',name:'兔子',  ec:'1f407',
+   rd:[{h:'兔',p:['ㄊ','ㄨ'],t:'4'},{h:'子',p:['ㄗ'],t:'0'}],
+   sk:['M 20 38 L 80 38', 'M 52 20 Q 44 56 26 78 L 70 70', 'M 64 58 Q 70 66 78 80']},
+  {sym:'ㄋ',type:'i',name:'牛奶',  ec:'1f37c',
+   rd:[{h:'牛',p:['ㄋ','ㄧ','ㄡ'],t:'2'},{h:'奶',p:['ㄋ','ㄞ'],t:'3'}],
+   sk:['M 26 20 L 64 20 L 40 44 L 74 44 Q 68 64 56 80 L 44 74']},
+  {sym:'ㄌ',type:'i',name:'老虎',  ec:'1f405',
+   rd:[{h:'老',p:['ㄌ','ㄠ'],t:'3'},{h:'虎',p:['ㄏ','ㄨ'],t:'3'}],
+   sk:['M 30 20 L 26 40 L 80 40 Q 74 70 66 80 L 54 76', 'M 54 20 Q 48 70 20 80']},
+  {sym:'ㄍ',type:'i',name:'狗',    ec:'1f415',
+   rd:[{h:'狗',p:['ㄍ','ㄡ'],t:'3'}],
+   sk:['M 44 20 C 44 20 36 32 24 48 C 24 48 36 62 46 80', 'M 72 20 C 72 20 64 32 52 48 C 52 48 64 62 74 80']},
+  {sym:'ㄎ',type:'i',name:'恐龍',  ec:'1f995',
+   rd:[{h:'恐',p:['ㄎ','ㄨ','ㄥ'],t:'3'},{h:'龍',p:['ㄌ','ㄨ','ㄥ'],t:'2'}],
+   sk:['M 20 20 L 80 20', 'M 42 20 L 30 42 L 72 42 Q 66 70 54 80 L 44 76']},
+  {sym:'ㄏ',type:'i',name:'蝴蝶',  ec:'1f98b',
+   rd:[{h:'蝴',p:['ㄏ','ㄨ'],t:'2'},{h:'蝶',p:['ㄉ','ㄧ','ㄝ'],t:'2'}],
+   sk:['M 30 24 L 80 24','M 30 24 L 30 50 C 30 50 30 70 20 80']},
+  {sym:'ㄐ',type:'i',name:'公雞',    ec:'1f413',
+   rd:[{h:'公',p:['ㄍ','ㄨ','ㄥ'],t:'1'},{h:'雞',p:['ㄐ','ㄧ'],t:'1'}],
+   sk:['M 32 18 L 32 54 L 68 54','M 68 18 L 68 82']},
+  {sym:'ㄑ',type:'i',name:'氣球',    ec:'1f388',
+   rd:[{h:'氣',p:['ㄑ','ㄧ'],t:'4'},{h:'球',p:['ㄑ','ㄧ','ㄡ'],t:'2'}],
+   sk:['M 60 20 C 60 20 50 32 36 48 C 36 48 50 62 62 80']},
+  {sym:'ㄒ',type:'i',name:'西瓜',  ec:'1f349',
+   rd:[{h:'西',p:['ㄒ','ㄧ'],t:'1'},{h:'瓜',p:['ㄍ','ㄨ','ㄚ'],t:'1'}],
+   sk:['M 24 20 L 76 20','M 50 20 L 50 80']},
+  {sym:'ㄓ',type:'i',name:'蜘蛛',  ec:'1f577_fe0f',
+   rd:[{h:'蜘',p:['ㄓ'],t:'1'},{h:'蛛',p:['ㄓ','ㄨ'],t:'1'}],
+   sk:['M 24 22 L 24 54 L 76 54','M 76 22 L 76 54','M 50 20 L 50 80','M 20 80 L 80 80']},
+  {sym:'ㄔ',type:'i',name:'車子',    ec:'1f697',
+   rd:[{h:'車',p:['ㄔ','ㄜ'],t:'1'},{h:'子',p:['ㄗ'],t:'0'}],
+   sk:['M 62 16 C 62 16 50 28 26 38','M 74 28 C 74 28 56 46 26 60', 'M 54 44 L 54 80']},
+  {sym:'ㄕ',type:'i',name:'獅子',  ec:'1f981',
+   rd:[{h:'獅',p:['ㄕ'],t:'1'},{h:'子',p:['ㄗ'],t:'0'}],
+   sk:['M 34 20 L 80 20 L 80 46','M 34 46 L 80 46','M 34 46 C 34 46 34 72 20 80']},
+  {sym:'ㄖ',type:'i',name:'熱狗',    ec:'1f32d',
+   rd:[{h:'熱',p:['ㄖ','ㄜ'],t:'4'},{h:'狗',p:['ㄍ','ㄡ'],t:'3'}],
+   sk:['M 26 20 L 26 80','M 26 20 L 74 20 L 74 80', 'M 46 44 C 46 44 52 48 54 56', 'M 26 80 74 80']},
+  {sym:'ㄗ',type:'i',name:'足球',    ec:'26bd',
+   rd:[{h:'足',p:['ㄗ','ㄨ'],t:'2'},{h:'球',p:['ㄑ','ㄧ','ㄡ'],t:'2'}],
+   sk:['M 24 20 L 76 20 C 76 20 70 44 60 60 L 50 54 ','M 42 20 L 42 80']},
+  {sym:'ㄘ',type:'i',name:'草莓',  ec:'1f353',
+   rd:[{h:'草',p:['ㄘ','ㄠ'],t:'3'},{h:'莓',p:['ㄇ','ㄟ'],t:'2'}],
+   sk:['M 22 32 L 78 32', 'M 48 20 L 34 52 L 70 52 C 70 52 62 70 46 80']},
+  {sym:'ㄙ',type:'i',name:'雨傘',    ec:'2602_fe0f',
+   rd:[{h:'雨',p:['ㄩ'],t:'3'},{h:'傘',p:['ㄙ','ㄢ'],t:'3'}],
+   sk:['M 50 20 Q 36 56 20 80 L 74 70', 'M 68 60 Q 76 70 80 80']},
+
+  // ── 介母 ──
+  //{sym:'ㄧ',type:'m',name:'螞蟻',  ec:'1f41c',
+  // rd:[{h:'螞',p:['ㄇ','ㄚ'],t:'3'},{h:'蟻',p:['ㄧ'],t:'3'}],
+  {sym:'ㄧ',type:'m',name:'衣服',  ec:'1f455',
+   rd:[{h:'衣',p:['ㄧ'],t:'1'},{h:'服',p:['ㄈ','ㄨ'],t:'2'}],
+   sk:['M 20 50 L 80 50']},
+  {sym:'ㄨ',type:'m',name:'烏龜',  ec:'1f422',
+   rd:[{h:'烏',p:['ㄨ'],t:'1'},{h:'龜',p:['ㄍ','ㄨ','ㄟ'],t:'1'}],
+   sk:['M 76 20 C 76 20 56 58 20 80','M 24 24 C 24 24 54 46 80 80']},
+  {sym:'ㄩ',type:'m',name:'魚兒',    ec:'1f41f',
+   rd:[{h:'魚',p:['ㄩ'],t:'2'},{h:'兒',p:['ㄦ'],t:'2'}],
+   sk:['M 20 20 L 20 80 L 80 80','M 80 20 L 80 80']},
+
+  // ── 韻母 ──
+  {sym:'ㄚ',type:'f',name:'喇叭',  ec:'1f3ba',
+   rd:[{h:'喇',p:['ㄌ','ㄚ'],t:'3'},{h:'叭',p:['ㄅ','ㄚ'],t:'1'}],
+   sk:['M 26 20 L 50 52','M 74 20 L 50 52','M 50 52 L 50 80']},
+  {sym:'ㄛ',type:'f',name:'蘿蔔',  ec:'1f955',
+   rd:[{h:'蘿',p:['ㄌ','ㄨ','ㄛ'],t:'2'},{h:'蔔',p:['ㄅ','ㄛ'],t:'0'}],
+   sk:['M 20 24 L 80 24','M 50 24 L 50 46 Q 24 46 24 64 Q 24 80 50 80 Q 72 80 76 70']},
+  {sym:'ㄜ',type:'f',name:'鱷魚',  ec:'1f40a',
+   rd:[{h:'鱷',p:['ㄜ'],t:'4'},{h:'魚',p:['ㄩ'],t:'2'}],
+   sk:['M 20 34 L 80 34','M 50 20 L 50 50 Q 24 50 24 66 Q 24 80 50 80 Q 72 80 76 70']},
+  {sym:'ㄝ',type:'f',name:'葉子',  ec:'1f343',
+   rd:[{h:'葉',p:['ㄧ','ㄝ'],t:'4'},{h:'子',p:['ㄗ'],t:'0'}],
+   sk:['M 20 40 L 80 40','M 66 20 Q 64 58 60 66','M 34 20 L 34 70 Q 34 80 44 80 L 74 80']},
+  {sym:'ㄞ',type:'f',name:'愛心',  ec:'2764_fe0f',
+   rd:[{h:'愛',p:['ㄞ'],t:'4'},{h:'心',p:['ㄒ','ㄧ','ㄣ'],t:'1'}],
+   sk:['M 20 20 L 80 20','M 30 24 L 24 50 L 76 50 Q 72 70 66 80','M 54 20 Q 52 60 24 80']},
+  {sym:'ㄟ',type:'f',name:'杯子',  ec:'1fad7',
+   rd:[{h:'杯',p:['ㄅ','ㄟ'],t:'1'},{h:'子',p:['ㄗ'],t:'0'}],
+   sk:['M 20 40 L 42 26 Q 50 60 80 80']},
+  {sym:'ㄠ',type:'f',name:'泡泡',  ec:'1fae7',
+   rd:[{h:'泡',p:['ㄆ','ㄠ'],t:'4'},{h:'泡',p:['ㄆ','ㄠ'],t:'0'}],
+   sk:['M 50 20 Q 40 38 24 50 L 56 50','M 70 36 Q 44 70 24 80 L 74 74', 'M 72 66 C 72 66 78 74 80 80']},
+  {sym:'ㄡ',type:'f',name:'手',    ec:'1f590',
+   rd:[{h:'手',p:['ㄕ','ㄡ'],t:'3'}],
+   sk:['M 24 20 L 76 20 Q 60 60 24 80','M 30 30 Q 56 50 76 80']},
+  {sym:'ㄢ',type:'f',name:'南瓜',  ec:'1f383',
+   rd:[{h:'南',p:['ㄋ','ㄢ'],t:'2'},{h:'瓜',p:['ㄍ','ㄨ','ㄚ'],t:'1'}],
+   sk:['M 20 20 L 74 20 L 64 50','M 34 20 L 24 50 L 80 50 Q 76 70 70 80']},
+  {sym:'ㄣ',type:'f',name:'海豚',  ec:'1f42c',
+   rd:[{h:'海',p:['ㄏ','ㄞ'],t:'3'},{h:'豚',p:['ㄊ','ㄨ','ㄣ'],t:'2'}],
+   sk:['M 30 20 L 20 48 L 80 48 Q 70 70 60 80']},
+  {sym:'ㄤ',type:'f',name:'螃蟹',  ec:'1f980',
+   rd:[{h:'螃',p:['ㄆ','ㄤ'],t:'2'},{h:'蟹',p:['ㄒ','ㄧ','ㄝ'],t:'4'}],
+   sk:['M 20 40 L 80 40','M 50 20 Q 50 74 20 80','M 52 44 L 52 70 Q 52 80 62 80 L 80 80']},
+  {sym:'ㄥ',type:'f',name:'風箏',  ec:'1fa81',
+   rd:[{h:'風',p:['ㄈ','ㄥ'],t:'1'},{h:'箏',p:['ㄓ','ㄥ'],t:'1'}],
+   sk:['M 50 20 Q 36 54 20 80 L 80 80']},
+  {sym:'ㄦ',type:'f',name:'耳朵',  ec:'1f442',
+   rd:[{h:'耳',p:['ㄦ'],t:'3'},{h:'朵',p:['ㄉ','ㄨ','ㄛ'],t:'3'}],
+   sk:['M 40 20 Q 40 70 20 80','M 60 20 L 60 70 Q 60 80 70 80 L 80 80']},
+];
+
+const GROUPS = [
+  {type:'i',label:'聲母',cls:'gi',rows:[['ㄅ','ㄆ','ㄇ','ㄈ'],['ㄉ','ㄊ','ㄋ','ㄌ'],['ㄍ','ㄎ','ㄏ'],['ㄐ','ㄑ','ㄒ'],['ㄓ','ㄔ','ㄕ','ㄖ'],['ㄗ','ㄘ','ㄙ']]},
+  {type:'m',label:'介母',cls:'gm',rows:[['ㄧ','ㄨ','ㄩ']]},
+  {type:'f',label:'韻母',cls:'gf',rows:[['ㄚ','ㄛ','ㄜ','ㄝ'],['ㄞ','ㄟ','ㄠ','ㄡ'],['ㄢ','ㄣ','ㄤ','ㄥ'],['ㄦ']]},
+];
+
+const smap = {};
+BOPO.forEach(b => smap[b.sym] = b);
+
+const lp = document.getElementById('lp');
+GROUPS.forEach(g => {
+  const blk = document.createElement('div');
+  blk.className = `grp ${g.cls}`;
+  const lbl = document.createElement('div');
+  lbl.className = 'glabel'; lbl.textContent = g.label;
+  blk.appendChild(lbl);
+  g.rows.forEach(row => {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'grow';
+    row.forEach(sym => {
+      const item = smap[sym]; if (!item) return;
+      const card = document.createElement('div');
+      card.className = `bc ${item.type}`;
+      card.textContent = sym; card.title = item.name;
+      card.addEventListener('click', () => pick(item, card));
+      rowEl.appendChild(card);
+    });
+    blk.appendChild(rowEl);
+  });
+  lp.appendChild(blk);
+});
+
+let selCard = null;
+function pick(item, card) {
+  if (selCard) selCard.classList.remove('sel');
+  card.classList.add('sel'); selCard = card;
+  render(item); speak(item);
+}
+
+function speak(item) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const voices = window.speechSynthesis.getVoices();
+  const zh = voices.find(v => /zh.?TW/i.test(v.lang)) || voices.find(v => /zh/i.test(v.lang));
+  function u(txt) {
+    const x = new SpeechSynthesisUtterance(txt);
+    x.lang = 'zh-TW'; x.rate = 0.82;
+    if (zh) x.voice = zh; return x;
+  }
+  const u1 = u(item.sym), u2 = u(item.name);
+  u1.onend = () => setTimeout(() => window.speechSynthesis.speak(u2), 280);
+  window.speechSynthesis.speak(u1);
+}
+
+function loadEmoji(item, container) {
+  container.innerHTML = '';
+  if (!item.ec) { showFb(container, item); return; }
+  const img = document.createElement('img');
+  img.style.cssText = 'width:130px;height:130px;object-fit:contain';
+  img.src = `https://fonts.gstatic.com/s/e/notoemoji/latest/${item.ec}/512.webp`;
+  img.onerror = () => {
+    if (img.src.includes('.webp')) {
+      img.onerror = () => showFb(container, item);
+      img.src = `https://fonts.gstatic.com/s/e/notoemoji/latest/${item.ec}/512.gif`;
+    } else { showFb(container, item); }
+  };
+  container.appendChild(img);
+}
+function showFb(container, item) {
+  container.innerHTML = `<span style="font-size:5.5rem;line-height:1">${getEmoji(item)}</span>`;
+}
+function getEmoji(item) {
+  const map = {
+    '布丁':'🍮','蘋果':'🍎','貓咪':'🐱','房子':'🏠','蛋糕':'🍰','兔子':'🐰',
+    '牛奶':'🥛','老虎':'🐯','狗':'🐶','恐龍':'🦕','蝴蝶':'🦋','公雞':'🐓',
+    '氣球':'🎈','西瓜':'🍉','蜘蛛':'🕷️','車子':'🚗','獅子':'🦁','熱狗':'🌭',
+    '足球':'⚽','草莓':'🍓','雨傘':'☂️','衣服':'👕','烏龜':'🐢','魚兒':'🐟',
+    '喇叭':'🎺','蘿蔔':'🥕','鱷魚':'🐊','葉子':'🍃','愛心':'❤️','飛機':'✈️',
+    '泡泡':'🫧','手':'✋','南瓜':'🎃','海豚':'🐬','螃蟹':'🦀','風箏':'🪁','耳朵':'👂'
+  };
+  return map[item.name] || '🖼️';
+}
+
+function mkCharBlocks(rdArr) {
+  return rdArr.map(syl => {
+    const tc = TONE[syl.t] || '';
+    const pSpans = syl.p.map(ph => `<span>${ph}</span>`).join('');
+    let bpHTML;
+    if (syl.t === '0') {
+      bpHTML = `<div class="bpcol tm-top">
+        <span class="tone-t">${tc}</span>
+        <div class="bpchars">${pSpans}</div>
+      </div>`;
+    } else {
+      bpHTML = `<div class="bpcol tm-side">
+        <div class="bpchars">${pSpans}</div>
+        ${tc ? `<span class="tone-r">${tc}</span>` : ''}
+      </div>`;
+    }
+    return `<div class="charblock">
+      <span class="hz">${syl.h}</span>
+      ${bpHTML}
+    </div>`;
+  }).join('');
+}
+
+function render(item) {
+  const rp = document.getElementById('rp');
+  const ghostPaths = item.sk.map(d =>
+    `<path d="${d}" fill="none" stroke="#C8C8C8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`
+  ).join('');
+
+  rp.innerHTML = `
+    <div class="dcard">
+      <div class="sbox">
+        <div class="stitle">✏️ 筆劃動畫</div>
+        <div class="svg-wrap">
+          <svg id="ssvg" viewBox="0 0 100 100" width="130" height="130" xmlns="http://www.w3.org/2000/svg">
+            <rect width="100" height="100" fill="#EBEBEB" rx="7"/>
+            <line x1="50" y1="0" x2="50" y2="100" stroke="#D5D5D5" stroke-width="0.5"/>
+            <line x1="0" y1="50" x2="100" y2="50" stroke="#D5D5D5" stroke-width="0.5"/>
+            ${ghostPaths}
+            <g id="ag"></g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="imgbox">
+        <div class="imgarea" id="ea"><span style="font-size:2rem">⏳</span></div>
+        <div class="wordrow">
+          ${mkCharBlocks(item.rd)}
+        </div>
+      </div>
+    </div>`;
+
+  loadEmoji(item, document.getElementById('ea'));
+  animStrokes(item);
+}
+
+function animStrokes(item) {
+  const g = document.getElementById('ag'); if (!g) return;
+  const strokeColor = item.type === 'i' ? '#E84040' : item.type === 'm' ? '#7048D4' : '#0FA870';
+  item.sk.forEach((d, i) => {
+    setTimeout(() => {
+      if (!document.getElementById('ag')) return;
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', strokeColor);
+      path.setAttribute('stroke-width', '5');
+      path.setAttribute('stroke-linecap', 'round');
+      path.setAttribute('stroke-linejoin', 'round');
+      g.appendChild(path);
+      try {
+        const len = path.getTotalLength() || 80;
+        path.style.setProperty('--dl', len);
+        path.style.strokeDasharray = len;
+        path.style.strokeDashoffset = len;
+        path.style.animation = 'ds .7s ease forwards';
+      } catch(e) {
+        path.style.opacity = '0';
+        setTimeout(() => { path.style.transition = 'opacity .3s'; path.style.opacity = '1'; }, 20);
+      }
+    }, 800 + i * 800);
+  });
+}
+
+if (window.speechSynthesis) {
+  window.speechSynthesis.getVoices();
+  if (window.speechSynthesis.onvoiceschanged !== undefined)
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+</script>
+</body>
+</html>
