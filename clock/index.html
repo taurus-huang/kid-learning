@@ -348,10 +348,10 @@
   }
   .ctrl-btn:active { transform: scale(0.88); box-shadow: 0 2px 5px var(--shadow); }
   /* 時的按鈕：紅色系 */
-  .btn-up-hour   { background: var(--hour-red); color: white; }
+  .btn-up-hour   { background: var(--hour-red-bg2); color: var(--hour-red-dark); }
   .btn-down-hour { background: var(--hour-red-bg2); color: var(--hour-red-dark); }
   /* 分的按鈕：藍色系 */
-  .btn-up-min    { background: var(--min-blue); color: white; }
+  .btn-up-min    { background: var(--min-blue-bg2); color: var(--min-blue-dark); }
   .btn-down-min  { background: var(--min-blue-bg2); color: var(--min-blue-dark); }
   /* 舊class保留相容 */
   .btn-up   { background: var(--panel-color); color: white; }
@@ -551,8 +551,9 @@
 
 <script>
 // ── State ──
-let hour = 12;
-let minute = 0;
+const __now = new Date();
+let hour = __now.getHours() % 12 || 12;
+let minute = __now.getMinutes();
 
 // ── DOM refs ──
 const dHour   = document.getElementById('d-hour');
