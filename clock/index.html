@@ -495,8 +495,8 @@
           <circle cx="130" cy="130" r="8" fill="#ff6b6b"/>
           <circle cx="130" cy="130" r="4" fill="white"/>
           <!-- Drag hint circles (invisible but large hit area) -->
-          <circle id="drag-min-zone" cx="130" cy="42" r="16" fill="transparent" cursor="grab"/>
-          <circle id="drag-hour-zone" cx="130" cy="68" r="16" fill="transparent" cursor="grab"/>
+          <circle id="drag-min-zone" cx="130" cy="42" r="16" fill="transparent" pointer-events="none"/>
+          <circle id="drag-hour-zone" cx="130" cy="68" r="16" fill="transparent" pointer-events="none"/>
         </svg>
       </div>
 
@@ -597,6 +597,7 @@ const timeText = document.getElementById('time-text');
 })();
 
 // ── Render ──
+let curHDeg = 0, curMDeg = 0; // 記錄目前時針/分針角度，供整根指針拖曳判斷使用
 function render() {
   // Digital
   dHour.textContent = String(hour).padStart(2,'0');
@@ -605,6 +606,8 @@ function render() {
   // Hands
   const hDeg = ((hour % 12) / 12) * 360 + (minute / 60) * 30;
   const mDeg = (minute / 60) * 360;
+  curHDeg = hDeg;
+  curMDeg = mDeg;
   handH.style.transform = `rotate(${hDeg}deg)`;
   handM.style.transform = `rotate(${mDeg}deg)`;
 
@@ -697,9 +700,7 @@ function addMin1(d) {
 });
 
 // ── Clock drag ──
-let dragging = null;    // 'hour' | 'minute'
-let dragPrevDeg = null; // 分針：上一幀角度，用於計算差值
-let dragMinFrac = 0;    // 分針：累積的分鐘小數，平滑處理
+let dragging = null; // 'hour' | 'minute'
 
 function getSvgPoint(e) {
   const rect = svg.getBoundingClientRect();
@@ -722,6 +723,27 @@ function hitTest(pt, zone) {
   return Math.sqrt(dx*dx + dy*dy) < 26;
 }
 
+// 計算點到線段（整根指針）的最短距離，讓整根指針都能被拖曳，而不只是末端
+const HAND_CENTER = { x: 130, y: 130 };
+const HOUR_HAND_LEN = 62; // 對應 hand-hour 的 x2,y2 = (130,68)
+const MIN_HAND_LEN  = 88; // 對應 hand-min 的 x2,y2 = (130,42)
+
+function handTipPoint(deg, len) {
+  const rad = (deg - 90) * Math.PI / 180;
+  return { x: HAND_CENTER.x + len * Math.cos(rad), y: HAND_CENTER.y + len * Math.sin(rad) };
+}
+
+function distToSegment(pt, x0, y0, x1, y1) {
+  const dx = x1 - x0, dy = y1 - y0;
+  const lenSq = dx * dx + dy * dy;
+  let t = lenSq === 0 ? 0 : ((pt.x - x0) * dx + (pt.y - y0) * dy) / lenSq;
+  // 超出指針實際長度範圍（t<0 為圓心之前，t>1 為末端之後）視為未命中，
+  // 避免指針末端外的區域也能被拖曳或顯示手形游標
+  if (t < 0 || t > 1) return Infinity;
+  const px = x0 + t * dx, py = y0 + t * dy;
+  return Math.hypot(pt.x - px, pt.y - py);
+}
+
 // 計算兩角度之間的最短差值（-180~180），正=順時針，負=逆時針
 function angleDelta(prev, curr) {
   let d = curr - prev;
@@ -730,55 +752,97 @@ function angleDelta(prev, curr) {
   return d;
 }
 
+const HAND_HIT_TOLERANCE = 14; // 指針可被拖曳的容許寬度（px）
+
 function onPointerDown(e) {
   const pt = getSvgPoint(e);
-  if (hitTest(pt, dragHZ)) {
+
+  const hTip = handTipPoint(curHDeg, HOUR_HAND_LEN);
+  const mTip = handTipPoint(curMDeg, MIN_HAND_LEN);
+  const distH = distToSegment(pt, HAND_CENTER.x, HAND_CENTER.y, hTip.x, hTip.y);
+  const distM = distToSegment(pt, HAND_CENTER.x, HAND_CENTER.y, mTip.x, mTip.y);
+
+  const hitH = distH <= HAND_HIT_TOLERANCE;
+  const hitM = distM <= HAND_HIT_TOLERANCE;
+
+  if (hitH && (!hitM || distH <= distM)) {
     dragging = 'hour';
+    svg.style.cursor = 'grabbing';
     svg.setPointerCapture?.(e.pointerId);
-  } else if (hitTest(pt, dragMZ)) {
+  } else if (hitM) {
     dragging = 'minute';
-    dragPrevDeg = getAngleDeg(pt);
-    dragMinFrac = minute; // 以目前分鐘為起點累積
+    svg.style.cursor = 'grabbing';
     svg.setPointerCapture?.(e.pointerId);
   }
 }
 
+// 更新滑鼠游標：移到可拖曳的指針範圍內時顯示手形（grab/grabbing）游標
+function updateHoverCursor(pt) {
+  const hTip = handTipPoint(curHDeg, HOUR_HAND_LEN);
+  const mTip = handTipPoint(curMDeg, MIN_HAND_LEN);
+  const distH = distToSegment(pt, HAND_CENTER.x, HAND_CENTER.y, hTip.x, hTip.y);
+  const distM = distToSegment(pt, HAND_CENTER.x, HAND_CENTER.y, mTip.x, mTip.y);
+  const hit = distH <= HAND_HIT_TOLERANCE || distM <= HAND_HIT_TOLERANCE;
+  svg.style.cursor = hit ? 'grab' : 'default';
+}
+
 function onPointerMove(e) {
-  if (!dragging) return;
+  if (!dragging) {
+    updateHoverCursor(getSvgPoint(e));
+    return;
+  }
   e.preventDefault();
-  const deg = getAngleDeg(getSvgPoint(e));
+  const pt = getSvgPoint(e);
+
+  // 太靠近圓心時，角度計算對滑鼠些微移動會非常敏感、容易產生不穩定的跳動，
+  // 此時忽略這一幀的更新，避免指針暴衝或看似反向的情況
+  const distFromCenter = Math.hypot(pt.x - HAND_CENTER.x, pt.y - HAND_CENTER.y);
+  if (distFromCenter < 12) return;
+
+  const deg = getAngleDeg(pt);
 
   if (dragging === 'hour') {
-    // 時針：直接 snap 到最近整點，不影響分鐘
-    hour = Math.round(deg / 30) % 12 || 12;
+    // 時針：依滑鼠角度換算出目標時數，並取「與目前時數的最短路徑」來移動，
+    // 確保在 12→1 這類邊界附近，移動方向永遠與滑鼠一致，不會反向跳動
+    const currentH0 = hour % 12; // 0~11
+    let targetH0 = Math.round((deg - minute * 0.5) / 30);
+    targetH0 = ((targetH0 % 12) + 12) % 12;
+
+    let deltaH = targetH0 - currentH0;
+    if (deltaH > 6)  deltaH -= 12;
+    if (deltaH < -6) deltaH += 12;
+
+    const newH0 = ((currentH0 + deltaH) % 12 + 12) % 12;
+    hour = newH0 === 0 ? 12 : newH0;
 
   } else {
-    // 分針：用角度差累積分鐘，溢出時進退小時（與 addMin1 邏輯相同）
-    const delta = angleDelta(dragPrevDeg, deg); // 度
-    dragPrevDeg = deg;
-    dragMinFrac += delta / 6; // 360°=60分，故1°=1/6分
+    // 分針：依滑鼠角度換算出目標分鐘，並取「與目前分鐘的最短路徑」來移動，
+    // 確保在 55→0 這類邊界附近，移動方向永遠與滑鼠一致，不會反向跳動
+    const targetMinute = Math.round(deg / 6) % 60;
+    let delta = targetMinute - minute;
+    if (delta > 30)  delta -= 60;
+    if (delta < -30) delta += 60;
 
-    // 取整數部分作為分鐘變化量
-    const steps = Math.trunc(dragMinFrac - minute);
-    if (steps !== 0) {
-      const totalMinutes = minute + steps;
+    if (delta !== 0) {
+      const totalMinutes = minute + delta;
       if (totalMinutes >= 60) {
         minute = totalMinutes - 60;
-        hour = ((hour - 1 + 1 + 12) % 12) + 1;
+        hour = (hour % 12) + 1;
       } else if (totalMinutes < 0) {
         minute = totalMinutes + 60;
-        hour = ((hour - 1 - 1 + 12) % 12) + 1;
+        hour = ((hour - 2 + 12) % 12) + 1;
       } else {
         minute = totalMinutes;
       }
-      // 同步 dragMinFrac 整數部分，保留小數
-      dragMinFrac = minute + (dragMinFrac - Math.trunc(dragMinFrac));
     }
   }
   render();
 }
 
-function onPointerUp() { dragging = null; dragPrevDeg = null; }
+function onPointerUp() {
+  dragging = null;
+  svg.style.cursor = 'default';
+}
 
 svg.addEventListener('pointerdown', onPointerDown);
 svg.addEventListener('pointermove', onPointerMove);
