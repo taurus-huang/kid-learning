@@ -3,35 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>注音符號學習樂園</title>
+<title>注音符號</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Noto+Sans+TC:wght@400;700&display=swap');
 :root{
   --ini:#E84040;--ini-bg:#FFF0F0;--ini-br:#FFBABA;
-  --med:#7048D4;--med-bg:#F3EFFF;--med-br:#C4AFFE;
-  --fin:#0FA870;--fin-bg:#EAFAF4;--fin-br:#80DDB8;
+  --med:#0FA870;--med-bg:#EAFAF4;--med-br:#80DDB8;
+  --fin:#2E86DE;--fin-bg:#EAF3FF;--fin-br:#A9D0F5;
   --page:#FFF9F0;--dark:#2D2D2D;--mid:#636E72;
   --fnt:'Nunito','Noto Sans TC',sans-serif;
   --fzh:'Noto Sans TC',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--fnt);background:var(--page);min-height:100vh;color:var(--dark)}
-header{background:linear-gradient(135deg,#E84040,#7048D4 50%,#0FA870);padding:12px 20px;text-align:center;color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--fnt);background:var(--page);color:var(--dark);display:flex;flex-direction:column}
+header{flex:0 0 auto;background:linear-gradient(135deg,#E84040,#7048D4 50%,#0FA870);padding:12px 20px;text-align:center;color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.2)}
 header h1{font-size:clamp(1.1rem,4vw,1.7rem);font-weight:800;letter-spacing:.04em}
 header p{font-size:.8rem;opacity:.88;margin-top:2px}
 .legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;padding:8px 16px;background:#fff;border-bottom:1px solid #EEE}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:.78rem;font-weight:700}
 .leg-dot{width:11px;height:11px;border-radius:50%}
-.layout{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 96px)}
+.layout{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:250px 6px 1fr}
+.resizer{position:relative;width:6px;cursor:col-resize;background:#EDEDED;touch-action:none}
+.resizer:hover,.resizer.active{background:#BFDBFE}
+.resizer::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:4px;height:36px;border-radius:3px;background:#BBB}
+.resizer:hover::after,.resizer.active::after{background:#2563EB}
 @media(max-width:660px){
-  .layout{grid-template-columns:1fr;height:auto}
-  .lp{max-height:46vh}
-  .rp{min-height:54vh}
+  .layout{grid-template-columns:1fr!important;grid-template-rows:24fr 6px 76fr}
+  .resizer{width:100%;height:6px;cursor:row-resize}
+  .resizer::after{width:36px;height:4px}
 }
-.lp{overflow-y:auto;padding:10px 10px 16px;border-right:2px solid #EDEDED;background:#fff}
+.lp{overflow-y:auto;padding:20px 10px 16px;background:var(--page);min-height:0}
 .lp::-webkit-scrollbar{width:4px}
 .lp::-webkit-scrollbar-thumb{background:#DDD;border-radius:4px}
-.grp{margin-bottom:6px}
+.grp{margin:0 auto 6px auto;width:212px}
 .glabel{font-size:.68rem;font-weight:800;letter-spacing:.1em;padding:3px 8px;border-radius:6px;display:inline-block;margin-bottom:5px}
 .gi .glabel{background:var(--ini-bg);color:var(--ini)}
 .gm .glabel{background:var(--med-bg);color:var(--med)}
@@ -44,48 +49,47 @@ header p{font-size:.8rem;opacity:.88;margin-top:2px}
 .bc.m{background:var(--med-bg);color:var(--med);border-color:var(--med-br)}
 .bc.f{background:var(--fin-bg);color:var(--fin);border-color:var(--fin-br)}
 .bc.sel.i{border-color:var(--ini);box-shadow:0 0 0 3px rgba(232,64,64,.28);transform:scale(1.12)}
-.bc.sel.m{border-color:var(--med);box-shadow:0 0 0 3px rgba(112,72,212,.28);transform:scale(1.12)}
-.bc.sel.f{border-color:var(--fin);box-shadow:0 0 0 3px rgba(15,168,112,.28);transform:scale(1.12)}
-.rp{overflow-y:auto;background:var(--page);display:flex;align-items:flex-start;justify-content:center;padding:14px}
+.bc.sel.m{border-color:var(--med);box-shadow:0 0 0 3px rgba(15,168,112,.28);transform:scale(1.12)}
+.bc.sel.f{border-color:var(--fin);box-shadow:0 0 0 3px rgba(46,134,222,.28);transform:scale(1.12)}
+.rp{overflow-y:auto;background:var(--page);display:flex;align-items:center;justify-content:center;padding:14px;min-height:0;min-width:0}
 .hint{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:260px;color:var(--mid);text-align:center;padding:20px}
 .hint .ico{font-size:3rem;margin-bottom:10px}
 .hint p{font-size:.9rem;line-height:1.7}
-.dcard{background:#fff;border-radius:20px;padding:18px;width:100%;max-width:340px;box-shadow:0 4px 22px rgba(0,0,0,.09);animation:fu .22s ease}
+.dcard{padding:18px;animation:fu .22s ease;display:flex;flex-direction:column;gap:16px}
 @keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.sbox{background:#F7F8FA;border-radius:13px;padding:12px;margin-bottom:12px}
+.sbox{width:var(--sq,300px);height:var(--sq,300px);flex:0 0 auto;display:flex;align-items:center;justify-content:center;min-width:0;min-height:0}
 .stitle{font-size:.7rem;font-weight:800;color:var(--mid);letter-spacing:.08em;margin-bottom:8px}
-.svg-wrap{display:flex;justify-content:center}
-.imgbox{border-radius:14px;overflow:hidden;border:2px solid #EEE;margin-bottom:12px;background:#F4F6FF}
-.imgarea{width:100%;height:160px;display:flex;align-items:center;justify-content:center}
-.imgarea img{width:130px;height:130px;object-fit:contain}
-.wordrow{display:flex;align-items:center;gap:6px;padding:10px 14px;background:#F7F8FA;border-top:1px solid #EEE;flex-wrap:wrap;justify-content:center}
+.svg-wrap{width:100%;height:100%;display:flex;justify-content:center;align-items:center}
+#ssvg{width:100%;height:100%;border:2px solid #EEE;border-radius:14px}
+.imgbox{width:var(--sq,300px);height:var(--sq,300px);flex:0 0 auto;border-radius:14px;overflow:hidden;border:2px solid #EEE;background:#F4F6FF;min-width:0;min-height:0;display:flex;flex-direction:column;container-type:size;container-name:imgbox}
+.imgarea{width:100%;flex:0 0 74%;display:flex;align-items:center;justify-content:center;min-height:0}
+.imgarea img{width:70%;height:70%;object-fit:contain}
+.fb-emoji{font-size:min(70cqh,70cqw);line-height:1;transform:translateY(-8%);display:inline-block}
+@media(max-width:660px){
+  .fb-emoji{transform:none;font-size:min(60cqh,60cqw)}
+}
+@media(max-height:500px) and (orientation:landscape){
+  .fb-emoji{font-size:min(55cqh,55cqw)}
+}
+.rp.wide .dcard{flex-direction:row}
+.wordrow{display:flex;align-items:center;gap:6px;padding:10px 14px;background:#F7F8FA;border-top:1px solid #EEE;flex-wrap:wrap;justify-content:center;flex:1 1 auto;align-content:center;min-height:0}
 .charblock{display:flex;flex-direction:row;align-items:center;gap:2px}
-.hz{font-size:1.9rem;font-weight:700;font-family:var(--fzh);line-height:1}
+.hz{font-size:clamp(1.4rem,max(12.5cqw,9.5cqh),3.7rem);font-weight:700;font-family:var(--fzh);line-height:1}
 .bpcol{display:flex;flex-direction:column;align-items:center}
-.bpchars{display:flex;flex-direction:column;align-items:center;font-size:.82rem;font-family:var(--fzh);color:#333;line-height:1.25}
+.bpchars{display:flex;flex-direction:column;align-items:center;font-size:clamp(.55rem,max(3.9cqw,3cqh),1.3rem);font-family:var(--fzh);color:#333;line-height:1.25}
 .bpchars span{display:block;text-align:center}
 .tm-side{display:flex;flex-direction:row;align-items:flex-end}
-.tone-r{font-size:.62rem;color:#888;margin-bottom:1px;align-self:flex-end}
+.tone-r{font-size:clamp(.45rem,max(3cqw,2.3cqh),1rem);color:#888;margin-bottom:1px;align-self:flex-end}
 .tm-top{display:flex;flex-direction:column;align-items:center}
-.tone-t{font-size:.62rem;color:#888;line-height:1}
+.tone-t{font-size:clamp(.45rem,max(3cqw,2.3cqh),1rem);color:#888;line-height:1}
 @keyframes ds{from{stroke-dashoffset:var(--dl)}to{stroke-dashoffset:0}}
 </style>
 </head>
 <body>
-<header>
-  <h1>🌈 注音符號學習樂園</h1>
-  <p>點選注音符號，聆聽發音、學習筆劃！</p>
-</header>
-<div class="legend">
-  <div class="legend-item"><div class="leg-dot" style="background:#E84040"></div>聲母</div>
-  <div class="legend-item"><div class="leg-dot" style="background:#7048D4"></div>介母</div>
-  <div class="legend-item"><div class="leg-dot" style="background:#0FA870"></div>韻母</div>
-</div>
 <div class="layout">
   <div class="lp" id="lp"></div>
-  <div class="rp" id="rp">
-    <div class="hint"><div class="ico">👆</div><p>請點選左邊的<br>注音符號卡<br>開始學習！</p></div>
-  </div>
+  <div class="resizer" id="resizer"></div>
+  <div class="rp" id="rp"></div>
 </div>
 
 <script>
@@ -220,14 +224,13 @@ const GROUPS = [
 
 const smap = {};
 BOPO.forEach(b => smap[b.sym] = b);
+const cardMap = {};
+let animGen = 0;
 
 const lp = document.getElementById('lp');
 GROUPS.forEach(g => {
   const blk = document.createElement('div');
   blk.className = `grp ${g.cls}`;
-  const lbl = document.createElement('div');
-  lbl.className = 'glabel'; lbl.textContent = g.label;
-  blk.appendChild(lbl);
   g.rows.forEach(row => {
     const rowEl = document.createElement('div');
     rowEl.className = 'grow';
@@ -237,6 +240,7 @@ GROUPS.forEach(g => {
       card.className = `bc ${item.type}`;
       card.textContent = sym; card.title = item.name;
       card.addEventListener('click', () => pick(item, card));
+      cardMap[sym] = card;
       rowEl.appendChild(card);
     });
     blk.appendChild(rowEl);
@@ -251,26 +255,39 @@ function pick(item, card) {
   render(item); speak(item);
 }
 
+pick(smap['ㄅ'], cardMap['ㄅ']);
+
+function makeUtter(txt) {
+  const voices = window.speechSynthesis.getVoices();
+  const zh = voices.find(v => /zh.?TW/i.test(v.lang)) || voices.find(v => /zh/i.test(v.lang));
+  const x = new SpeechSynthesisUtterance(txt);
+  x.lang = 'zh-TW'; x.rate = 0.82;
+  if (zh) x.voice = zh;
+  return x;
+}
 function speak(item) {
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
-  const voices = window.speechSynthesis.getVoices();
-  const zh = voices.find(v => /zh.?TW/i.test(v.lang)) || voices.find(v => /zh/i.test(v.lang));
-  function u(txt) {
-    const x = new SpeechSynthesisUtterance(txt);
-    x.lang = 'zh-TW'; x.rate = 0.82;
-    if (zh) x.voice = zh; return x;
-  }
-  const u1 = u(item.sym), u2 = u(item.name);
+  const u1 = makeUtter(item.sym), u2 = makeUtter(item.name);
   u1.onend = () => setTimeout(() => window.speechSynthesis.speak(u2), 280);
   window.speechSynthesis.speak(u1);
+}
+function speakSym(item) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(makeUtter(item.sym));
+}
+function speakWord(item) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(makeUtter(item.name));
 }
 
 function loadEmoji(item, container) {
   container.innerHTML = '';
   if (!item.ec) { showFb(container, item); return; }
   const img = document.createElement('img');
-  img.style.cssText = 'width:130px;height:130px;object-fit:contain';
+  img.style.cssText = 'object-fit:contain';
   img.src = `https://fonts.gstatic.com/s/e/notoemoji/latest/${item.ec}/512.webp`;
   img.onerror = () => {
     if (img.src.includes('.webp')) {
@@ -281,7 +298,7 @@ function loadEmoji(item, container) {
   container.appendChild(img);
 }
 function showFb(container, item) {
-  container.innerHTML = `<span style="font-size:5.5rem;line-height:1">${getEmoji(item)}</span>`;
+  container.innerHTML = `<span class="fb-emoji">${getEmoji(item)}</span>`;
 }
 function getEmoji(item) {
   const map = {
@@ -318,6 +335,16 @@ function mkCharBlocks(rdArr) {
   }).join('');
 }
 
+function syncBgRectRadius() {
+  const rp = document.getElementById('rp');
+  const rect = document.getElementById('bgrect');
+  if (!rp || !rect) return;
+  const sizePx = parseFloat(getComputedStyle(rp).getPropertyValue('--sq')) || 0;
+  const targetPx = 14;
+  const rx = sizePx > 0 ? Math.min(50, (targetPx * 100) / sizePx) : 7;
+  rect.setAttribute('rx', rx.toFixed(2));
+}
+
 function render(item) {
   const rp = document.getElementById('rp');
   const ghostPaths = item.sk.map(d =>
@@ -327,12 +354,11 @@ function render(item) {
   rp.innerHTML = `
     <div class="dcard">
       <div class="sbox">
-        <div class="stitle">✏️ 筆劃動畫</div>
         <div class="svg-wrap">
           <svg id="ssvg" viewBox="0 0 100 100" width="130" height="130" xmlns="http://www.w3.org/2000/svg">
-            <rect width="100" height="100" fill="#EBEBEB" rx="7"/>
-            <line x1="50" y1="0" x2="50" y2="100" stroke="#D5D5D5" stroke-width="0.5"/>
-            <line x1="0" y1="50" x2="100" y2="50" stroke="#D5D5D5" stroke-width="0.5"/>
+            <rect id="bgrect" width="100" height="100" fill="#F7F8FA" rx="7"/>
+            <line x1="50" y1="0" x2="50" y2="100" stroke="#EEEEEE" stroke-width="0.5"/>
+            <line x1="0" y1="50" x2="100" y2="50" stroke="#EEEEEE" stroke-width="0.5"/>
             ${ghostPaths}
             <g id="ag"></g>
           </svg>
@@ -349,14 +375,28 @@ function render(item) {
 
   loadEmoji(item, document.getElementById('ea'));
   animStrokes(item);
+  syncBgRectRadius();
+
+  const sbox = rp.querySelector('.sbox');
+  sbox.style.cursor = 'pointer';
+  sbox.title = '重播筆劃動畫';
+  sbox.addEventListener('click', () => { animStrokes(item); speakSym(item); });
+
+  const imgbox = rp.querySelector('.imgbox');
+  imgbox.style.cursor = 'pointer';
+  imgbox.title = '念出這個詞';
+  imgbox.addEventListener('click', () => speakWord(item));
 }
 
 function animStrokes(item) {
   const g = document.getElementById('ag'); if (!g) return;
-  const strokeColor = item.type === 'i' ? '#E84040' : item.type === 'm' ? '#7048D4' : '#0FA870';
+  g.innerHTML = '';
+  const myGen = ++animGen;
+  const strokeColor = item.type === 'i' ? '#E84040' : item.type === 'm' ? '#0FA870' : '#2E86DE';
   item.sk.forEach((d, i) => {
     setTimeout(() => {
-      if (!document.getElementById('ag')) return;
+      if (myGen !== animGen) return;
+      const g2 = document.getElementById('ag'); if (!g2) return;
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.setAttribute('d', d);
       path.setAttribute('fill', 'none');
@@ -364,7 +404,7 @@ function animStrokes(item) {
       path.setAttribute('stroke-width', '5');
       path.setAttribute('stroke-linecap', 'round');
       path.setAttribute('stroke-linejoin', 'round');
-      g.appendChild(path);
+      g2.appendChild(path);
       try {
         const len = path.getTotalLength() || 80;
         path.style.setProperty('--dl', len);
@@ -378,6 +418,116 @@ function animStrokes(item) {
     }, 800 + i * 800);
   });
 }
+
+(function initResizer(){
+  const layout = document.querySelector('.layout');
+  const resizer = document.getElementById('resizer');
+  if (!layout || !resizer) return;
+  let dragging = false;
+  const mq = window.matchMedia('(max-width:660px)');
+  const isMobile = () => mq.matches;
+  const mqLandscapePhone = window.matchMedia('(max-height:500px) and (orientation:landscape)');
+  const isLandscapePhone = () => mqLandscapePhone.matches;
+
+  const RES_W = 6;
+  const MIN_LEFT = 250; // 左邊需容納 4 個注音符號卡的最小寬度
+  const MIN_RIGHT = 200; // 一般情況下右邊保留的最小寬度
+
+  function setColsPx(leftPx, totalWidth, layoutHeight) {
+    let maxLeft;
+    if (isLandscapePhone()) {
+      const minRightWidth = layoutHeight * 2; // 手機橫式：右邊寬度應為高度的兩倍以上
+      maxLeft = totalWidth - RES_W - minRightWidth;
+      if (maxLeft < MIN_LEFT) maxLeft = MIN_LEFT; // 螢幕過窄時，優先保證左邊最小寬度
+    } else {
+      maxLeft = totalWidth - RES_W - MIN_RIGHT;
+      if (maxLeft < MIN_LEFT) maxLeft = MIN_LEFT;
+    }
+    leftPx = Math.min(Math.max(leftPx, MIN_LEFT), maxLeft);
+    const rightPx = totalWidth - leftPx - RES_W;
+    layout.style.gridTemplateColumns = `${leftPx}px ${RES_W}px ${rightPx}px`;
+  }
+  function setRows(topPct) {
+    topPct = Math.min(80, Math.max(20, topPct));
+    layout.style.gridTemplateRows = `${topPct}% 6px ${100 - topPct}%`;
+  }
+
+  function moveAt(clientX, clientY) {
+    const rect = layout.getBoundingClientRect();
+    if (isMobile()) {
+      const pct = ((clientY - rect.top) / rect.height) * 100;
+      setRows(pct);
+    } else {
+      const leftPx = clientX - rect.left;
+      setColsPx(leftPx, rect.width, rect.height);
+    }
+  }
+
+  function down(e) {
+    dragging = true;
+    resizer.classList.add('active');
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  }
+  function move(e) {
+    if (!dragging) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    moveAt(clientX, clientY);
+  }
+  function up() {
+    if (!dragging) return;
+    dragging = false;
+    resizer.classList.remove('active');
+    document.body.style.userSelect = '';
+  }
+
+  function resetGridInline() {
+    layout.style.gridTemplateColumns = '';
+    layout.style.gridTemplateRows = '';
+  }
+  if (mq.addEventListener) mq.addEventListener('change', resetGridInline);
+  else if (mq.addListener) mq.addListener(resetGridInline);
+
+  resizer.addEventListener('mousedown', down);
+  window.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', up);
+
+  resizer.addEventListener('touchstart', down, {passive:false});
+  window.addEventListener('touchmove', move, {passive:false});
+  window.addEventListener('touchend', up);
+})();
+
+(function initWideMode(){
+  const rp = document.getElementById('rp');
+  if (!rp || !window.ResizeObserver) return;
+  function update() {
+    const cs = getComputedStyle(rp);
+    const padL = parseFloat(cs.paddingLeft)||0, padR = parseFloat(cs.paddingRight)||0;
+    const padT = parseFloat(cs.paddingTop)||0, padB = parseFloat(cs.paddingBottom)||0;
+    const availW = rp.clientWidth - padL - padR;
+    const availH = rp.clientHeight - padT - padB;
+    const wide = availW > availH * 1.05;
+    rp.classList.toggle('wide', wide);
+
+    const dcard = rp.querySelector('.dcard');
+    let dPadL = 18, dPadR = 18, dPadT = 18, dPadB = 18, gap = 16;
+    if (dcard) {
+      const dcs = getComputedStyle(dcard);
+      dPadL = parseFloat(dcs.paddingLeft)||0; dPadR = parseFloat(dcs.paddingRight)||0;
+      dPadT = parseFloat(dcs.paddingTop)||0; dPadB = parseFloat(dcs.paddingBottom)||0;
+      gap = parseFloat(dcs.rowGap || dcs.gap) || 16;
+    }
+    const innerW = availW - dPadL - dPadR;
+    const innerH = availH - dPadT - dPadB;
+    let size = wide ? Math.min(innerH, (innerW - gap) / 2) : Math.min(innerW, (innerH - gap) / 2);
+    size = Math.max(size, 60);
+    rp.style.setProperty('--sq', size + 'px');
+    syncBgRectRadius();
+  }
+  new ResizeObserver(update).observe(rp);
+  update();
+})();
 
 if (window.speechSynthesis) {
   window.speechSynthesis.getVoices();
