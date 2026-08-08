@@ -470,6 +470,18 @@
     100% { transform: translateX(2vw) scaleX(-1); }
   }
 
+  /* 針對 Windows 10 22H2 系統鏡像翻轉蝸牛的方向 */
+  body.win10-22h2 .bug-snail {
+    animation-name: crawlSnailWin10;
+  }
+  @keyframes crawlSnailWin10 {
+    0% { transform: translateX(2vw) scaleX(1); }
+    48% { transform: translateX(90vw) scaleX(1); }
+    50% { transform: translateX(90vw) scaleX(-1); }
+    98% { transform: translateX(2vw) scaleX(-1); }
+    100% { transform: translateX(2vw) scaleX(1); }
+  }
+
   header, main{
     position: relative;
     z-index: 20; /* 確保卡片永遠在最上層，不被彩虹、雲朵、草地或飛舞的emoji蟲蟲蓋住 */
@@ -897,6 +909,39 @@
   </div>
 
   <script>
+    // 🐌 檢測是否為 Windows 10 22H2 系統，若是則加上 win10-22h2 class 以鏡像翻轉蝸牛
+    (function(){
+      function applyWin10_22H2_Class() {
+        document.body.classList.add('win10-22h2');
+      }
+
+      const ua = navigator.userAgent;
+      const isWin = /Windows NT 10\.0/.test(ua);
+
+      if (isWin) {
+        if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+          navigator.userAgentData.getHighEntropyValues(["platformVersion", "fullVersionList", "uaFullVersion"])
+            .then(uaValues => {
+              // 在 Client Hints 中，platformVersion < 13.0.0 代表 Windows 10 (Windows 11 為 13.0.0+)
+              // 22H2 build 號為 19045
+              const pv = parseFloat(uaValues.platformVersion || '0');
+              if (pv > 0 && pv < 13) {
+                applyWin10_22H2_Class();
+              }
+            })
+            .catch(() => {
+              // 若無法取得 High Entropy Values，但 UA 為 Windows NT 10.0，且排除已知 Win11 特徵
+              if (!/Windows NT 11\.0/.test(ua)) {
+                applyWin10_22H2_Class();
+              }
+            });
+        } else {
+          // 不支援 userAgentData 的瀏覽器 (如 Firefox)，Windows NT 10.0 預設判定為 Windows 10
+          applyWin10_22H2_Class();
+        }
+      }
+    })();
+
     (function(){
       const hourHand   = document.getElementById('mini-clock-hour');
       const minuteHand = document.getElementById('mini-clock-minute');
