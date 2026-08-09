@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>數字學習樂園 0~100</title>
+<style>
+  :root{
+    --font: "Baloo 2","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family:var(--font);
+    background:linear-gradient(160deg,#fff6e5,#e8f7ff 60%,#f0ffe8);
+    min-height:100vh;
+    padding:20px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  h1{
+    text-align:center;
+    color:#5b3a29;
+    font-size:clamp(24px,4vw,38px);
+    margin:6px 0 4px;
+    text-shadow:2px 2px 0 #fff, 0 0 8px rgba(255,255,255,.6);
+  }
+  p.sub{
+    text-align:center;
+    color:#7a6a5a;
+    margin:0 0 20px;
+    font-size:clamp(14px,2vw,18px);
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(10,1fr);
+    gap:8px;
+    max-width:1100px;
+    margin:0 auto;
+  }
+  .num-btn{
+    aspect-ratio:1/1;
+    border:none;
+    border-radius:16px;
+    font-family:var(--font);
+    font-size:clamp(18px,3.2vw,40px);
+    font-weight:700;
+    color:#3d2b1f;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 4px 0 rgba(0,0,0,0.15), 0 6px 10px rgba(0,0,0,0.08);
+    transition:transform .12s ease, box-shadow .12s ease;
+    user-select:none;
+  }
+  .num-btn:hover{
+    transform:translateY(-3px) scale(1.08);
+    filter:brightness(1.15) saturate(1.4);
+    box-shadow:0 6px 0 rgba(0,0,0,0.18), 0 10px 16px rgba(0,0,0,0.18), 0 0 0 3px #ff8c42;
+  }
+  .num-btn:active{
+    transform:translateY(2px) scale(.96);
+    box-shadow:0 1px 0 rgba(0,0,0,0.15);
+  }
+
+  /* modal */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(40,30,20,0.55);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+    padding:16px;
+  }
+  .overlay.show{ display:flex; }
+  .modal{
+    background:#fffdf7;
+    border-radius:28px;
+    padding:22px 24px 26px;
+    max-width:640px;
+    width:100%;
+    max-height:92vh;
+    overflow-y:auto;
+    text-align:center;
+    box-shadow:0 20px 50px rgba(0,0,0,0.35);
+    position:relative;
+    animation:pop .25s ease;
+  }
+  @keyframes pop{
+    from{ transform:scale(.85); opacity:0; }
+    to{ transform:scale(1); opacity:1; }
+  }
+  .close-btn{
+    position:absolute;
+    top:12px; right:14px;
+    background:#ffdede;
+    border:none;
+    color:#a33;
+    width:36px; height:36px;
+    border-radius:50%;
+    font-size:18px;
+    font-weight:800;
+    cursor:pointer;
+  }
+  .digits-row{
+    display:inline-flex;
+    margin:10px 0 16px;
+    background:#f5f0e6;
+    border-radius:22px;
+    padding:16px 22px;
+    box-shadow:inset 0 0 0 3px #e3d8c4;
+    max-width:100%;
+  }
+  .digits-inner{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:0;
+  }
+  .guide-line{
+    position:absolute;
+    left:0; right:0;
+    border-top:1px dashed #cbbfa0;
+    pointer-events:none;
+  }
+  .digit-box{
+    width:110px;
+    max-width:30vw;
+    position:relative;
+    z-index:1;
+  }
+  .digit-box svg{ width:100%; height:auto; display:block; }
+  .digit-gray{
+    fill:none;
+    stroke:#d3ccc0;
+    stroke-width:9;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .stroke-path{
+    fill:none;
+    stroke:#2f6fed;
+    stroke-width:9;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .controls{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:10px;
+  }
+  .ctrl-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    border:none;
+    border-radius:14px;
+    padding:10px 18px;
+    font-family:var(--font);
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 3px 0 rgba(0,0,0,0.15);
+    transition:transform .1s;
+  }
+  .ctrl-btn .icon{ font-size:18px; line-height:1; }
+  .ctrl-btn:active{ transform:translateY(2px); box-shadow:none; }
+  .replay{ background:#ffe08a; color:#7a5200; }
+  .prev,.next{ background:#c9f2c0; color:#245c1a; }
+  .prev:disabled,.next:disabled{ opacity:.35; cursor:default; }
+</style>
+</head>
+<body>
+<!--
+<h1>🔢 數字學習樂園</h1>
+<p class="sub">點一下數字，看看怎麼寫、聽聽怎麼唸！(0～100)</p>
+-->
+<div class="grid" id="grid"></div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <button class="close-btn" id="closeBtn">✕</button>
+    <div class="digits-row" id="digitsRow"></div>
+    <div class="controls">
+      <button class="ctrl-btn prev" id="prevBtn"><span class="icon">⬅️</span><span>上一個</span></button>
+      <button class="ctrl-btn replay" id="replayBtn"><span class="icon">🔁</span><span>重播</span></button>
+      <button class="ctrl-btn next" id="nextBtn"><span class="icon">➡️</span><span>下一個</span></button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- 顏色（每十個數字一種顏色） ---------- */
+const palette = [
+  '#ffd3d3','#ffe3c2','#fff3b0','#e3f5b0','#c6f0c6',
+  '#c2eee0','#c2e6ff','#d1cfff','#f0c6f5','#ffc6de','#ffd9b0'
+];
+
+/* ---------- 中文數字唸法 ---------- */
+function numberToChinese(num){
+  const d = ['零','一','二','三','四','五','六','七','八','九'];
+  if(num === 0) return '零';
+  if(num === 100) return '一百';
+  if(num < 10) return d[num];
+  if(num < 20) return '十' + (num % 10 === 0 ? '' : d[num % 10]);
+  const tens = Math.floor(num/10), ones = num % 10;
+  return d[tens] + '十' + (ones === 0 ? '' : d[ones]);
+}
+
+/* ---------- 0~9 筆劃路徑 (viewBox 0 0 100 140) ---------- */
+/* 每個數字是一個陣列，陣列中每個字串是一「筆」的 SVG path d 值，依書寫順序排列 */
+const digitPaths = {
+  0: ['M50,20 C22,20 20,60 20,70 C20,80 22,120 50,120 C78,120 80,80 80,70 C80,60 78,20 50,20 Z'],
+  1: ['M52,20 L52,120'],
+  2: ['M22,40 C26,12 78,12 78,45 C78,72 45,90 20,120 L80,120'],
+  3: ['M22,32 C30,15 78,15 78,42 C78,58 60,63 44,66 C60,66 82,72 82,92 C82,126 30,126 20,104'],
+  4: ['M62,20 L18,94 L86,94', 'M66,55 L66,120'],
+  5: ['M25,22 L22,66 C55,50 84,62 84,88 C84,122 36,130 20,104', 'M25,20 L75,20'],
+  6: ['M68,22 C30,22 18,58 20,92 C22,110 37,120 52,120 C71,120 84,110 84,92 C84,80 74,66 52,66 C37,66 20,80 20,92'],
+  7: ['M20,20 L82,20', 'M82,20 L40,122'],
+  8: ['M76,40 C76,40 72,22 50,20 C50,20 24,20 24,42 C24,42 26,60 50,66 C50,66 78,70 80,92 C80,92 80,120 50,120 C50,120 20,120 20,92 C20,90 22,78 44,66 L78,40'],
+  9: ['M72,32 C61,16 34,16 24,34 C18,50 22,66 40,68 C50,68 66,66 76,30 L50,120']
+};
+
+/* ---------- 建立按鈕 ---------- */
+const gridEl = document.getElementById('grid');
+for(let n = 0; n <= 100; n++){
+  const btn = document.createElement('button');
+  btn.className = 'num-btn';
+  btn.textContent = n;
+  btn.style.background = palette[Math.floor(n/10) % palette.length];
+  btn.addEventListener('click', () => openNumber(n));
+  gridEl.appendChild(btn);
+}
+
+/* ---------- Modal 邏輯 ---------- */
+const overlay = document.getElementById('overlay');
+const digitsRowEl = document.getElementById('digitsRow');
+const closeBtn = document.getElementById('closeBtn');
+const replayBtn = document.getElementById('replayBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+let currentNumber = 0;
+let pendingTimers = [];
+
+function getDigits(n){
+  if(n === 100) return [1,0,0];
+  if(n < 10) return [n];
+  return [Math.floor(n/10), n % 10];
+}
+
+function buildDigitSVG(digit){
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS,'svg');
+  svg.setAttribute('viewBox','0 0 100 140');
+
+  const strokes = digitPaths[digit];
+
+  // 先畫灰色的完整數字底圖，讓孩子先看到數字的樣子
+  strokes.forEach(d=>{
+    const grayPath = document.createElementNS(svgNS,'path');
+    grayPath.setAttribute('d', d);
+    grayPath.setAttribute('class','digit-gray');
+    svg.appendChild(grayPath);
+  });
+
+  // 再疊上彩色的筆劃動畫
+  const pathEls = [];
+  strokes.forEach(d=>{
+    const path = document.createElementNS(svgNS,'path');
+    path.setAttribute('d', d);
+    path.setAttribute('class','stroke-path');
+    svg.appendChild(path);
+    pathEls.push(path);
+  });
+  return { svg, pathEls };
+}
+
+function clearTimers(){
+  pendingTimers.forEach(t => clearTimeout(t));
+  pendingTimers = [];
+}
+
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'zh-TW';
+  utter.rate = 0.85;
+  utter.pitch = 1.05;
+  window.speechSynthesis.speak(utter);
+}
+
+function playNumber(n){
+  clearTimers();
+  currentNumber = n;
+  const readingText = numberToChinese(n);
+
+  digitsRowEl.innerHTML = '';
+  const digitsInner = document.createElement('div');
+  digitsInner.className = 'digits-inner';
+
+  // 三條對齊橫線橫跨整個數字（不論一位數/二位數/三位數都連在一起）
+  [14.29, 50, 85.71].forEach(pct=>{
+    const line = document.createElement('div');
+    line.className = 'guide-line';
+    line.style.top = pct + '%';
+    digitsInner.appendChild(line);
+  });
+
+  const digits = getDigits(n);
+  const allPathGroups = [];
+
+  digits.forEach((d, idx)=>{
+    const { svg, pathEls } = buildDigitSVG(d);
+    const box = document.createElement('div');
+    box.className = 'digit-box';
+    box.style.marginLeft = (idx === 0) ? '0' : '-20px';
+    box.appendChild(svg);
+    digitsInner.appendChild(box);
+    allPathGroups.push(pathEls);
+  });
+
+  digitsRowEl.appendChild(digitsInner);
+
+  // 先把每一筆設定成「未畫」狀態（隱藏）
+  allPathGroups.forEach(pathEls=>{
+    pathEls.forEach(path=>{
+      const len = path.getTotalLength();
+      path.style.strokeDasharray = len;
+      path.style.strokeDashoffset = len;
+      path.style.transition = 'none';
+    });
+  });
+
+  // 強制 reflow 讓上面的設定生效後才開始動畫
+  void digitsRowEl.offsetWidth;
+
+  const strokeDur = 650;
+  const strokeGap = 150;
+  const digitGap = 300;
+  let t = 150;
+
+  allPathGroups.forEach(pathEls=>{
+    pathEls.forEach(path=>{
+      path.style.transition = `stroke-dashoffset ${strokeDur}ms ease-in-out`;
+      const timer = setTimeout(()=>{ path.style.strokeDashoffset = '0'; }, t);
+      pendingTimers.push(timer);
+      t += strokeDur + strokeGap;
+    });
+    t += digitGap;
+  });
+
+  // 發音（一開始就唸）
+  speak(readingText);
+
+  prevBtn.disabled = (n === 0);
+  nextBtn.disabled = (n === 100);
+}
+
+function openNumber(n){
+  playNumber(n);
+  overlay.classList.add('show');
+}
+
+function closeModal(){
+  overlay.classList.remove('show');
+  clearTimers();
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+}
+
+closeBtn.addEventListener('click', closeModal);
+overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeModal(); });
+document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeModal(); });
+
+replayBtn.addEventListener('click', ()=> playNumber(currentNumber));
+prevBtn.addEventListener('click', ()=>{ if(currentNumber > 0) playNumber(currentNumber - 1); });
+nextBtn.addEventListener('click', ()=>{ if(currentNumber < 100) playNumber(currentNumber + 1); });
+</script>
+</body>
+</html>
