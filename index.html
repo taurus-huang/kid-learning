@@ -553,6 +553,27 @@
     100% { transform: translateX(120vw); }
   }
 
+  /* 🚁 直升機：從畫面右側飛向左側，穿越天空 */
+  .emoji-helicopter{
+    position: fixed;
+    top: 11%;
+    left: 0;
+    font-size: clamp(26px, 4vw, 42px);
+    z-index: 6;
+    pointer-events: none;
+    line-height: 1;
+    animation: flyLeftHelicopter 30s linear infinite;
+  }
+  .helicopter-flip{
+    display: inline-block;
+    transform: scaleX(1); /* 讓飛機機頭朝左，配合由右向左飛行 */
+  }
+
+  @keyframes flyLeftHelicopter{
+    0%   { transform: translateX(115vw); }
+    100% { transform: translateX(-20vw); }
+  }
+
   /* 🌈 天空中央的大彩虹：最高處對齊標題文字，兩側沒入草地 */
   .rainbow-big-wrap{
     position: fixed;
@@ -829,6 +850,8 @@
     </svg>
   </div>
 
+  <div class="emoji-helicopter" aria-hidden="true"><span class="helicopter-flip">🚁</span></div>
+
   <div class="ground-layer" aria-hidden="true">
     <div class="grass-fill"></div>
     <svg viewBox="0 0 1600 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -906,7 +929,7 @@
         </svg>
         <span class="card__title"><span class="zw">認<span class="zw-bpmf n2"><span>ㄖ</span><span>ㄣ</span><span class="tone tone-mid2">ˋ</span></span></span><span class="zw">識<span class="zw-bpmf n1"><span>ㄕ</span><span class="tone tone-top">ˋ</span></span></span><span class="zw">時<span class="zw-bpmf n1"><span>ㄕ</span><span class="tone tone-top">ˊ</span></span></span><span class="zw">鐘<span class="zw-bpmf n3"><span>ㄓ</span><span>ㄨ</span><span>ㄥ</span></span></span></span>
       </a>
-
+<!--
       <div class="card card--placeholder" aria-hidden="true">
         <svg class="card__icon" viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="38" fill="none" stroke="var(--ink)" stroke-width="5" stroke-dasharray="8 8"/>
@@ -914,7 +937,7 @@
         </svg>
         <span class="card__title"><span class="zw">敬<span class="zw-bpmf n3"><span>ㄐ</span><span>ㄧ</span><span>ㄥ</span><span class="tone tone-mid3">ˋ</span></span></span><span class="zw">請<span class="zw-bpmf n3"><span>ㄑ</span><span>ㄧ</span><span>ㄥ</span><span class="tone tone-mid3">ˇ</span></span></span><span class="zw">期<span class="zw-bpmf n2"><span>ㄑ</span><span>ㄧ</span><span class="tone tone-mid2">ˊ</span></span></span><span class="zw">待<span class="zw-bpmf n2"><span>ㄉ</span><span>ㄞ</span><span class="tone tone-mid2">ˋ</span></span></span></span>
       </div>
-
+-->
     </div>
   </main>
   </div>
