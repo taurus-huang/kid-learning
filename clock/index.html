@@ -630,7 +630,7 @@ function updateDragZone(el, deg, handLen) {
 // ── Chinese time text ──
 const cnNums = ['零','一','二','三','四','五','六','七','八','九','十','十一','十二'];
 function toChineseTime(h, m) {
-  const hStr = cnNums[h] + '點';
+  const hStr = (h === 2 ? '兩' : cnNums[h]) + '點';
   if (m === 0) return hStr + '整';
   if (m === 30) return hStr + '半';
   if (m < 10) return hStr + '零' + cnNums[m] + '分';
