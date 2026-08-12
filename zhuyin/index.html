@@ -203,8 +203,8 @@ const BOPO = [
   {sym:'ㄨ',type:'m',name:'烏龜',  ec:'1f422',
    rd:[{h:'烏',p:['ㄨ'],t:'1'},{h:'龜',p:['ㄍ','ㄨ','ㄟ'],t:'1'}],
    sk:['M 76 20 C 76 20 56 58 20 80','M 24 24 C 24 24 54 46 80 80']},
-  {sym:'ㄩ',type:'m',name:'魚兒',    ec:'1f41f',
-   rd:[{h:'魚',p:['ㄩ'],t:'2'},{h:'兒',p:['ㄦ'],t:'2'}],
+  {sym:'ㄩ',type:'m',name:'魚',    ec:'1f41f',
+   rd:[{h:'魚',p:['ㄩ'],t:'2'}],
    sk:['M 20 20 L 20 80 L 80 80','M 80 20 L 80 80']},
 
   // ── 韻母 ──
@@ -345,7 +345,7 @@ function getEmoji(item) {
     '冰淇淋':'🍦','蘋果':'🍎','貓咪':'🐱','房子':'🏠','蛋糕':'🍰','兔子':'🐰',
     '牛奶':'🥛','老虎':'🐯','小狗':'🐶','恐龍':'🦕','蝴蝶':'🦋','公雞':'🐓',
     '氣球':'🎈','西瓜':'🍉','蜘蛛':'🕷️','車子':'🚗','獅子':'🦁','熱狗':'🌭',
-    '足球':'⚽','草莓':'🍓','雨傘':'☂️','櫻桃':'🍒','烏龜':'🐢','魚兒':'🐟',
+    '足球':'⚽','草莓':'🍓','雨傘':'☂️','櫻桃':'🍒','烏龜':'🐢','魚':'🐟',
     '喇叭':'🎺','蘿蔔':'🥕','鱷魚':'🐊','葉子':'🍃','愛心':'❤️','飛機':'✈️',
     '泡泡':'🫧','手':'✋','南瓜':'🎃','海豚':'🐬','螃蟹':'🦀','風箏':'🪁','耳朵':'👂'
   };
@@ -433,7 +433,27 @@ function animStrokes(item) {
   g.innerHTML = '';
   const myGen = ++animGen;
   const strokeColor = item.type === 'i' ? '#E84040' : item.type === 'm' ? '#0FA870' : '#2E86DE';
+
+  // 先量測每一筆的長度，讓每一筆的動畫時間依長度等比例分配，維持繪製速度一致
+  const lens = item.sk.map(d => {
+    const tmp = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    tmp.setAttribute('d', d);
+    g.appendChild(tmp);
+    let len = 80;
+    try { len = tmp.getTotalLength() || 80; } catch(e) {}
+    g.removeChild(tmp);
+    return len;
+  });
+
+  const SPEED = 160;    // 每秒繪製的長度(px)，數值越大整體動畫越快
+  const MIN_DUR = 0.35; // 單筆最短動畫時間(秒)，避免極短筆劃時間趨近於0
+  const GAP = 150;      // 每筆完成到下一筆開始的間隔(ms)
+
+  let delay = 800; // 第一筆開始前的等待時間
   item.sk.forEach((d, i) => {
+    const len = lens[i];
+    const dur = Math.max(MIN_DUR, len / SPEED);
+    const startDelay = delay;
     setTimeout(() => {
       if (myGen !== animGen) return;
       const g2 = document.getElementById('ag'); if (!g2) return;
@@ -446,16 +466,17 @@ function animStrokes(item) {
       path.setAttribute('stroke-linejoin', 'round');
       g2.appendChild(path);
       try {
-        const len = path.getTotalLength() || 80;
-        path.style.setProperty('--dl', len);
-        path.style.strokeDasharray = len;
-        path.style.strokeDashoffset = len;
-        path.style.animation = 'ds .7s ease forwards';
+        const len2 = path.getTotalLength() || len || 80;
+        path.style.setProperty('--dl', len2);
+        path.style.strokeDasharray = len2;
+        path.style.strokeDashoffset = len2;
+        path.style.animation = `ds ${dur}s linear forwards`;
       } catch(e) {
         path.style.opacity = '0';
         setTimeout(() => { path.style.transition = 'opacity .3s'; path.style.opacity = '1'; }, 20);
       }
-    }, 800 + i * 800);
+    }, startDelay);
+    delay += dur * 1000 + GAP;
   });
 }
 
