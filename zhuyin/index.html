@@ -36,13 +36,13 @@ header p{font-size:.8rem;opacity:.88;margin-top:2px}
 .lp{overflow-y:auto;padding:20px 10px 16px;background:var(--page);min-height:0}
 .lp::-webkit-scrollbar{width:4px}
 .lp::-webkit-scrollbar-thumb{background:#DDD;border-radius:4px}
-.grp{margin:0 auto 6px auto;width:212px}
+.grp{margin:0 auto 6px auto;width:var(--grp-w,212px)}
 .glabel{font-size:.68rem;font-weight:800;letter-spacing:.1em;padding:3px 8px;border-radius:6px;display:inline-block;margin-bottom:5px}
 .gi .glabel{background:var(--ini-bg);color:var(--ini)}
 .gm .glabel{background:var(--med-bg);color:var(--med)}
 .gf .glabel{background:var(--fin-bg);color:var(--fin)}
 .grow{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:2px}
-.bc{width:50px;height:50px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.45rem;font-weight:700;cursor:pointer;border:2px solid transparent;transition:transform .12s,box-shadow .12s;user-select:none;-webkit-tap-highlight-color:transparent}
+.bc{width:var(--bc-size,50px);height:var(--bc-size,50px);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:var(--bc-fs,1.45rem);font-weight:700;cursor:pointer;border:2px solid transparent;transition:transform .12s,box-shadow .12s;user-select:none;-webkit-tap-highlight-color:transparent}
 .bc:hover{transform:scale(1.1)}
 .bc:active{transform:scale(.93)}
 .bc.i{background:var(--ini-bg);color:var(--ini);border-color:var(--ini-br)}
@@ -280,6 +280,63 @@ GROUPS.forEach(g => {
   });
   lp.appendChild(blk);
 });
+
+// 若左側面板空間足夠（在能同時完整顯示全部37個注音符號按鈕的前提下），
+// 自動放大按鈕與其內文字，讓畫面利用率更好；空間不足時維持原本大小(可捲動)。
+(function initGridAutoFit(){
+  const BASE_SIZE = 50;   // 按鈕原始邊長(px)
+  const BASE_FS = 1.45;   // 按鈕原始字型大小(rem)
+  const GAP = 4;          // .grow 內按鈕間距(px)，與CSS一致
+
+  const totalRows = GROUPS.reduce((s, g) => s + g.rows.length, 0);
+  const maxCols = Math.max(...GROUPS.flatMap(g => g.rows.map(r => r.length)));
+
+  // 在尚未套用任何放大前，量測非按鈕本身佔用的高度(群組標籤、各種margin/padding等)。
+  // 這裡刻意不用 lp.scrollHeight：當面板本身比內容還高時，scrollHeight會直接等於
+  // clientHeight（因為完全不需要捲動），量出來的高度會被嚴重高估，導致後面永遠算不出
+  // 可以放大的空間。改用第一個與最後一個群組的 getBoundingClientRect() 來精確算出
+  // 「內容實際佔用的高度」，不受面板本身高度影響。
+  const grpEls = lp.querySelectorAll('.grp');
+  let nonButtonHeight = 0;
+  if (grpEls.length > 0) {
+    const firstTop = grpEls[0].getBoundingClientRect().top;
+    const lastBottom = grpEls[grpEls.length - 1].getBoundingClientRect().bottom;
+    const contentHeight = lastBottom - firstTop;
+    nonButtonHeight = contentHeight - totalRows * BASE_SIZE;
+  }
+
+  function fit() {
+    const cs = getComputedStyle(lp);
+    const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+
+    const availW = lp.clientWidth - padX;
+    // 注意：baseScrollHeight(與由此推得的 nonButtonHeight)本身已包含上下 padding，
+    // 因此這裡要直接與 lp.clientHeight(同樣包含 padding)比較，不能再扣一次 padding，
+    // 否則會被誤判為空間不足，導致按鈕高度上限被卡死在原始尺寸。
+    const availH = lp.clientHeight;
+
+    const maxByWidth = (availW - (maxCols - 1) * GAP) / maxCols;
+    const maxByHeight = (availH - nonButtonHeight) / totalRows;
+
+    let size = Math.floor(Math.min(maxByWidth, maxByHeight));
+    size = Math.max(BASE_SIZE, size); // 只放大，不縮小，空間不足時退回原始尺寸並讓面板可捲動
+
+    const fs = (BASE_FS * size / BASE_SIZE).toFixed(3);
+    const grpW = maxCols * size + (maxCols - 1) * GAP;
+
+    lp.style.setProperty('--bc-size', size + 'px');
+    lp.style.setProperty('--bc-fs', fs + 'rem');
+    lp.style.setProperty('--grp-w', grpW + 'px');
+  }
+
+  fit();
+  if (window.ResizeObserver) {
+    new ResizeObserver(fit).observe(lp);
+  } else {
+    window.addEventListener('resize', fit);
+    window.addEventListener('orientationchange', fit);
+  }
+})();
 
 let selCard = null;
 function pick(item, card) {
