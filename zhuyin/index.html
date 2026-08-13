@@ -98,6 +98,8 @@ const BOPO_AUDIO_B64 = "T2dnUwACAAAAAAAAAAD6bNhcAAAAAMiQ3KEBE09wdXNIZWFkAQE4AcBd
 let audioCtx = null;
 let bopoBuffer = null;
 let audioReady = false;
+let audioToken = 0;      // 每次觸發發音時遞增，用來讓舊的延遲回呼失效
+let currentSource = null; // 目前正在播放的注音片段(Web Audio BufferSource)
 
 function initBopoAudio() {
   try {
@@ -121,11 +123,25 @@ function playSymAudio(item, onEnded) {
     const src = audioCtx.createBufferSource();
     src.buffer = bopoBuffer;
     src.connect(audioCtx.destination);
-    if (onEnded) src.onended = onEnded;
+    currentSource = src;
+    src.onended = () => {
+      if (currentSource === src) currentSource = null;
+      if (onEnded) onEnded();
+    };
     src.start(0, idx * 1, 1);
     return true;
   }
   return false;
+}
+
+// 中止目前正在播放或即將播放的所有發音(注音片段音檔 + 語音合成)，
+// 讓按下新按鈕時能立刻接上新的發音，不會與尚未播完的舊發音重疊。
+function stopCurrentAudio() {
+  if (currentSource) {
+    try { currentSource.onended = null; currentSource.stop(); } catch (e) {}
+    currentSource = null;
+  }
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
 }
 
 const TONE = {'1':'','2':'ˊ','3':'ˇ','4':'ˋ','0':'·'};
@@ -371,18 +387,30 @@ function makeUtter(txt) {
 }
 function speak(item) {
   if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
+  const myToken = ++audioToken;
+  stopCurrentAudio();
   const played = playSymAudio(item, () => {
-    setTimeout(() => window.speechSynthesis.speak(makeUtter(item.name)), 280);
+    if (myToken !== audioToken) return; // 期間已按了新的按鈕，放棄接下來的發音
+    setTimeout(() => {
+      if (myToken !== audioToken) return;
+      window.speechSynthesis.speak(makeUtter(item.name));
+    }, 280);
   });
   if (!played) {
     const u1 = makeUtter(item.sym), u2 = makeUtter(item.name);
-    u1.onend = () => setTimeout(() => window.speechSynthesis.speak(u2), 280);
+    u1.onend = () => {
+      if (myToken !== audioToken) return;
+      setTimeout(() => {
+        if (myToken !== audioToken) return;
+        window.speechSynthesis.speak(u2);
+      }, 280);
+    };
     window.speechSynthesis.speak(u1);
   }
 }
 function speakSym(item) {
-  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  const myToken = ++audioToken;
+  stopCurrentAudio();
   const played = playSymAudio(item);
   if (!played && window.speechSynthesis) {
     window.speechSynthesis.speak(makeUtter(item.sym));
@@ -390,7 +418,8 @@ function speakSym(item) {
 }
 function speakWord(item) {
   if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
+  ++audioToken;
+  stopCurrentAudio();
   window.speechSynthesis.speak(makeUtter(item.name));
 }
 
