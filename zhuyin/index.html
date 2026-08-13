@@ -309,14 +309,28 @@ GROUPS.forEach(g => {
     const cs = getComputedStyle(lp);
     const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
 
-    const availW = lp.clientWidth - padX;
-    // 注意：baseScrollHeight(與由此推得的 nonButtonHeight)本身已包含上下 padding，
-    // 因此這裡要直接與 lp.clientHeight(同樣包含 padding)比較，不能再扣一次 padding，
-    // 否則會被誤判為空間不足，導致按鈕高度上限被卡死在原始尺寸。
-    const availH = lp.clientHeight;
+    // 注意：这里刻意使用 offsetWidth（元素本身的版面寬度，不受內部捲軸出現與否影響），
+    // 而不是 clientWidth。因為 clientWidth 會在直向捲軸出現/消失時跟著變動，
+    // 若拿它來計算按鈕尺寸，會形成「按鈕變大→內容超高→捲軸出現→可用寬度變小→
+    // 按鈕變小→內容不再超高→捲軸消失→可用寬度變大→按鈕又變大→...」的無窮迴圈，
+    // 造成 ResizeObserver 不斷觸發、按鈕尺寸不停跳動。改用不受捲軸影響的 offsetWidth，
+    // 並固定預留一段捲軸寬度，即可讓計算結果穩定，不再受捲軸狀態牽動。
+    const SCROLLBAR_RESERVE = 16; // 預留可能出現的捲軸寬度
+    const availW = lp.offsetWidth - padX - SCROLLBAR_RESERVE;
+    const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    // 注意：nonButtonHeight 是用 .grp 的 getBoundingClientRect() 量出「內容本身」的高度
+    // （第一個群組頂端到最後一個群組底端），這個範圍不包含 #lp 自己的上下 padding。
+    // 因此這裡也必須把 lp.clientHeight 的 padding 扣掉，讓兩邊基準一致(都只算內容區)，
+    // 否則會把 padding 誤當成可以拿來放大按鈕的空間，導致內容整體多出約一個 padding
+    // 的高度而冒出垂直捲軸。
+    const availH = lp.clientHeight - padY;
 
     const maxByWidth = (availW - (maxCols - 1) * GAP) / maxCols;
-    const maxByHeight = (availH - nonButtonHeight) / totalRows;
+    // 高度足夠時的放大原則：以「能同時顯示全部37個注音符號、且不出現垂直捲軸」為準。
+    // 這裡預留 SAFETY_MARGIN 這一點點緩衝空間，避免字型、瀏覽器算繪造成的次像素誤差
+    // 讓實際內容高度剛好比可用高度多出一點點，進而意外冒出垂直捲軸。
+    const SAFETY_MARGIN = 2; // px
+    const maxByHeight = (availH - nonButtonHeight - SAFETY_MARGIN) / totalRows;
 
     let size = Math.floor(Math.min(maxByWidth, maxByHeight));
     size = Math.max(BASE_SIZE, size); // 只放大，不縮小，空間不足時退回原始尺寸並讓面板可捲動
