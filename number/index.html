@@ -343,17 +343,24 @@ function playNumber(n){
   // 強制 reflow 讓上面的設定生效後才開始動畫
   void digitsRowEl.offsetWidth;
 
-  const strokeDur = 650;
+  // 依筆劃長度計算「等速」的動畫時間：筆劃越長，花費時間越多；越短，花費時間越少
+  const speedPxPerMs = 0.22;   // 筆劃畫寫速度（每毫秒畫多少長度），數字越小畫越慢
+  const minStrokeDur = 300;    // 每一筆最短時間，避免太短的筆劃一閃而過
+  const maxStrokeDur = 1400;   // 每一筆最長時間，避免太長的筆劃等太久
   const strokeGap = 150;
   const digitGap = 300;
   let t = 150;
 
   allPathGroups.forEach(pathEls=>{
     pathEls.forEach(path=>{
-      path.style.transition = `stroke-dashoffset ${strokeDur}ms ease-in-out`;
+      const len = path.getTotalLength();
+      let dur = Math.round(len / speedPxPerMs);
+      dur = Math.min(maxStrokeDur, Math.max(minStrokeDur, dur));
+      //path.style.transition = `stroke-dashoffset ${dur}ms ease-in-out`;   // 這個 ease-in-out 會使筆劃中間速度加快，結尾變慢
+      path.style.transition = `stroke-dashoffset ${dur}ms linear`;          // 這個 linear 會使每筆劃速度都很均勻
       const timer = setTimeout(()=>{ path.style.strokeDashoffset = '0'; }, t);
       pendingTimers.push(timer);
-      t += strokeDur + strokeGap;
+      t += dur + strokeGap;
     });
     t += digitGap;
   });
