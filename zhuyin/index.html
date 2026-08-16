@@ -13,85 +13,250 @@
   --page:#FFF9F0;--dark:#2D2D2D;--mid:#636E72;
   --fnt:'Nunito','Noto Sans TC',sans-serif;
   --fzh:'Noto Sans TC',sans-serif;
+  --bcw: clamp(52px,9vw,72px);
+  --bcgap: 8px;
+  --dbox: clamp(140px, min(60vw,34vh), 380px);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden}
-body{font-family:var(--fnt);background:var(--page);color:var(--dark);display:flex;flex-direction:column}
-header{flex:0 0 auto;background:linear-gradient(135deg,#E84040,#7048D4 50%,#0FA870);padding:12px 20px;text-align:center;color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.2)}
-header h1{font-size:clamp(1.1rem,4vw,1.7rem);font-weight:800;letter-spacing:.04em}
-header p{font-size:.8rem;opacity:.88;margin-top:2px}
-.legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;padding:8px 16px;background:#fff;border-bottom:1px solid #EEE}
-.legend-item{display:flex;align-items:center;gap:5px;font-size:.78rem;font-weight:700}
-.leg-dot{width:11px;height:11px;border-radius:50%}
-.layout{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:250px 6px 1fr}
-.resizer{position:relative;width:6px;cursor:col-resize;background:#EDEDED;touch-action:none}
-.resizer:hover,.resizer.active{background:#BFDBFE}
-.resizer::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:4px;height:36px;border-radius:3px;background:#BBB}
-.resizer:hover::after,.resizer.active::after{background:#2563EB}
-@media(max-width:660px){
-  .layout{grid-template-columns:1fr!important;grid-template-rows:24fr 6px 76fr}
-  .resizer{width:100%;height:6px;cursor:row-resize}
-  .resizer::after{width:36px;height:4px}
+body{
+  font-family:var(--fnt);
+  background:linear-gradient(160deg,#fff6e5,#e8f7ff 60%,#f0ffe8);
+  min-height:100vh;
+  padding:20px;
+  -webkit-tap-highlight-color: transparent;
 }
-.lp{overflow-y:auto;padding:20px 10px 16px;background:var(--page);min-height:0}
-.lp::-webkit-scrollbar{width:4px}
-.lp::-webkit-scrollbar-thumb{background:#DDD;border-radius:4px}
-.grp{margin:0 auto 6px auto;width:var(--grp-w,212px)}
-.glabel{font-size:.68rem;font-weight:800;letter-spacing:.1em;padding:3px 8px;border-radius:6px;display:inline-block;margin-bottom:5px}
-.gi .glabel{background:var(--ini-bg);color:var(--ini)}
-.gm .glabel{background:var(--med-bg);color:var(--med)}
-.gf .glabel{background:var(--fin-bg);color:var(--fin)}
-.grow{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:2px}
-.bc{width:var(--bc-size,50px);height:var(--bc-size,50px);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:var(--bc-fs,1.45rem);font-weight:700;cursor:pointer;border:2px solid transparent;transition:transform .12s,box-shadow .12s;user-select:none;-webkit-tap-highlight-color:transparent}
-.bc:hover{transform:scale(1.1)}
-.bc:active{transform:scale(.93)}
+.chart-wrap{
+  width:100%;
+}
+.chart{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  max-width:960px;
+  margin:24px auto;
+  padding:0 6px;
+}
+.group{
+  display:flex;
+  flex-direction:row;
+  flex-wrap:wrap;
+  justify-content:flex-start;
+  gap:var(--bcgap);
+  width:calc(4 * var(--bcw) + 3 * var(--bcgap));
+}
+.bc{
+  width:var(--bcw);
+  aspect-ratio:1/1;
+  flex:0 0 auto;
+  border-radius:16px;
+  border:2px solid transparent;
+  font-family:var(--fzh);
+  font-size:clamp(20px,4vw,32px);
+  font-weight:700;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 0 rgba(0,0,0,0.12), 0 6px 10px rgba(0,0,0,0.06);
+  transition:transform .12s ease, box-shadow .12s ease;
+  user-select:none;
+  -webkit-tap-highlight-color: transparent;
+  position:relative;
+  overflow:hidden;
+}
+.bc-thumb{
+  position:absolute;
+  right:2px;
+  bottom:2px;
+  width:42%;
+  height:42%;
+  object-fit:contain;
+  pointer-events:none;
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,0.25));
+}
+.bc-thumb-fb{
+  position:absolute;
+  right:1px;
+  bottom:-2px;
+  font-size:55%;
+  line-height:1;
+  pointer-events:none;
+}
+@media (orientation: landscape){
+  .chart-wrap{
+    height:calc(100vh - 40px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow-x:auto;
+    overflow-y:hidden;
+  }
+  .chart{
+    flex-direction:row-reverse;
+    align-items:flex-start;
+    justify-content:center;
+    flex-wrap:nowrap;
+    width:max-content;
+    max-width:none;
+    margin:0 auto;
+    padding:0 6px;
+  }
+  .group{
+    flex-direction:column;
+    flex-wrap:nowrap;
+    justify-content:flex-start;
+    width:auto;
+    flex:0 0 auto;
+  }
+  .bc{
+    width:clamp(16px, min(calc((100vw - 160px) / 11), calc((100vh - 140px) / 4)), 140px);
+    height:clamp(16px, min(calc((100vw - 160px) / 11), calc((100vh - 140px) / 4)), 140px);
+    font-size:clamp(9px, min(calc((100vw - 160px) / 11 * 0.42), calc((100vh - 140px) / 4 * 0.42)), 60px);
+  }
+}
 .bc.i{background:var(--ini-bg);color:var(--ini);border-color:var(--ini-br)}
 .bc.m{background:var(--med-bg);color:var(--med);border-color:var(--med-br)}
 .bc.f{background:var(--fin-bg);color:var(--fin);border-color:var(--fin-br)}
-.bc.sel.i{border-color:var(--ini);box-shadow:0 0 0 3px rgba(232,64,64,.28);transform:scale(1.12)}
-.bc.sel.m{border-color:var(--med);box-shadow:0 0 0 3px rgba(15,168,112,.28);transform:scale(1.12)}
-.bc.sel.f{border-color:var(--fin);box-shadow:0 0 0 3px rgba(46,134,222,.28);transform:scale(1.12)}
-.rp{overflow-y:auto;background:var(--page);display:flex;align-items:center;justify-content:center;padding:14px;min-height:0;min-width:0}
-.hint{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:260px;color:var(--mid);text-align:center;padding:20px}
-.hint .ico{font-size:3rem;margin-bottom:10px}
-.hint p{font-size:.9rem;line-height:1.7}
-.dcard{padding:18px;animation:fu .22s ease;display:flex;flex-direction:column;gap:16px}
-@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.sbox{width:var(--sq,300px);height:var(--sq,300px);flex:0 0 auto;display:flex;align-items:center;justify-content:center;min-width:0;min-height:0}
-.stitle{font-size:.7rem;font-weight:800;color:var(--mid);letter-spacing:.08em;margin-bottom:8px}
-.svg-wrap{width:100%;height:100%;display:flex;justify-content:center;align-items:center}
-#ssvg{width:100%;height:100%;border:2px solid #EEE;border-radius:14px;transition:border-color .15s ease,box-shadow .15s ease,transform .15s ease}
-.sbox:hover #ssvg{border-color:#93C5FD;box-shadow:0 4px 14px rgba(0,0,0,.12);transform:scale(1.03)}
-.imgbox{width:var(--sq,300px);height:var(--sq,300px);flex:0 0 auto;border-radius:14px;overflow:hidden;border:2px solid #EEE;background:#F4F6FF;min-width:0;min-height:0;display:flex;flex-direction:column;container-type:size;container-name:imgbox;transition:border-color .15s ease,box-shadow .15s ease,transform .15s ease}
-.imgbox:hover{border-color:#93C5FD;box-shadow:0 4px 14px rgba(0,0,0,.12);transform:scale(1.03)}
-.imgarea{width:100%;flex:0 0 74%;display:flex;align-items:center;justify-content:center;min-height:0}
-.imgarea img{width:70%;height:70%;object-fit:contain}
-.fb-emoji{font-size:min(70cqh,70cqw);line-height:1;transform:translateY(-8%);display:inline-block}
-@media(max-width:660px){
-  .fb-emoji{transform:none;font-size:min(60cqh,60cqw)}
+.bc:hover{
+  transform:translateY(-3px) scale(1.08);
+  filter:brightness(1.08) saturate(1.3);
+  box-shadow:0 6px 0 rgba(0,0,0,0.15), 0 10px 16px rgba(0,0,0,0.15);
 }
-@media(max-height:500px) and (orientation:landscape){
-  .fb-emoji{font-size:min(55cqh,55cqw)}
+.bc:active{ transform:translateY(2px) scale(.96); box-shadow:0 1px 0 rgba(0,0,0,0.12); }
+@media (orientation: portrait){
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  :root{
+    --bcw: clamp(48px, min(calc((100vw - 90px) / 4), calc((100vh - 210px) / 11)), 130px);
+  }
+  .bc{
+    font-size:clamp(20px, min(calc((100vw - 90px) / 4 * 0.42), calc((100vh - 210px) / 11 * 0.42)), 56px);
+  }
 }
-.rp.wide .dcard{flex-direction:row}
-.wordrow{display:flex;align-items:center;gap:6px;padding:10px 14px;background:#F7F8FA;border-top:1px solid #EEE;flex-wrap:wrap;justify-content:center;flex:1 1 auto;align-content:center;min-height:0}
-.charblock{display:flex;flex-direction:row;align-items:center;gap:2px}
-.hz{font-size:clamp(1.4rem,max(12.5cqw,9.5cqh),3.7rem);font-weight:700;font-family:var(--fzh);line-height:1}
-.bpcol{display:flex;flex-direction:column;align-items:center}
-.bpchars{display:flex;flex-direction:column;align-items:center;font-size:clamp(.55rem,max(3.9cqw,3cqh),1.3rem);font-family:var(--fzh);color:#333;line-height:1.25}
-.bpchars span{display:block;text-align:center}
-.tm-side{display:flex;flex-direction:row;align-items:flex-end}
-.tone-r{font-size:clamp(.45rem,max(3cqw,2.3cqh),1rem);color:#888;margin-bottom:1px;align-self:flex-end}
-.tm-top{display:flex;flex-direction:column;align-items:center}
-.tone-t{font-size:clamp(.45rem,max(3cqw,2.3cqh),1rem);color:#888;line-height:1}
+
+/* modal */
+.overlay{
+  position:fixed; inset:0;
+  background:rgba(40,30,20,0.55);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:50;
+  padding:16px;
+}
+.overlay.show{ display:flex; }
+.modal{
+  background:rgba(255,253,247,0.72);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  border-radius:28px;
+  padding:clamp(16px,3vmin,40px) clamp(18px,4vmin,48px) clamp(20px,4vmin,48px);
+  max-width:min(94vw,1200px);
+  max-height:92vh;
+  overflow-y:auto;
+  text-align:center;
+  box-shadow:0 20px 50px rgba(0,0,0,0.35);
+  position:relative;
+  animation:pop .25s ease;
+}
+@keyframes pop{ from{transform:scale(.85);opacity:0} to{transform:scale(1);opacity:1} }
+.close-btn{
+  position:absolute; top:12px; right:14px;
+  background:#ffdede; border:none; color:#a33;
+  width:clamp(32px,5vmin,44px); height:clamp(32px,5vmin,44px);
+  border-radius:50%; font-size:clamp(16px,2.6vmin,22px); font-weight:800; cursor:pointer;
+}
+.dcard-row{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:clamp(16px,3vmin,32px); margin:10px 0 20px;
+}
+@media (orientation: landscape){
+  .dcard-row{ flex-direction:row; align-items:stretch; }
+  :root{ --dbox: clamp(140px, min(30vw,58vh), 380px); }
+}
+@media (orientation: portrait){
+  :root{ --dbox: clamp(110px, min(60vw, calc((92vh - 220px) / 2)), 340px); }
+}
+.sbox{
+  width:var(--dbox); height:var(--dbox);
+  flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+#ssvg{ width:100%; height:100%; border:2px solid #EEE; border-radius:14px; background:#F7F8FA; transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+.sbox:hover #ssvg{ border-color:#93C5FD; box-shadow:0 4px 14px rgba(0,0,0,.12); transform:scale(1.03); }
+.imgbox{
+  width:var(--dbox); height:var(--dbox); flex:0 0 auto; border-radius:14px; overflow:hidden;
+  border:2px solid #EEE; background:#F4F6FF; display:flex; flex-direction:column;
+  container-type:size; container-name:imgbox; cursor:pointer;
+  transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+.imgbox:hover{ border-color:#93C5FD; box-shadow:0 4px 14px rgba(0,0,0,.12); transform:scale(1.03); }
+.imgarea{ width:100%; flex:1 1 auto; display:flex; align-items:center; justify-content:center; min-height:0; }
+.imgarea img{ width:70%; height:70%; object-fit:contain; }
+.fb-emoji{ font-size:min(60cqh,60cqw); line-height:1; display:inline-block; }
+.wordrow{
+  display:flex; align-items:center; gap:6px; padding:10px 10px;
+  background:#F7F8FA; border-top:1px solid #EEE; flex-wrap:wrap; justify-content:center;
+}
+.charblock{ display:flex; flex-direction:row; align-items:center; gap:2px; }
+.hz{ font-size:clamp(1.2rem,5vmin,2.6rem); font-weight:700; font-family:var(--fzh); line-height:1; }
+.bpcol{ display:flex; flex-direction:column; align-items:center; }
+.bpchars{ display:flex; flex-direction:column; align-items:center; font-size:clamp(.5rem,2.4vmin,1.1rem); font-family:var(--fzh); color:#333; line-height:1.25; }
+.bpchars span{ display:block; text-align:center; }
+.tm-side{ display:flex; flex-direction:row; align-items:flex-end; }
+.tone-r{ font-size:clamp(.4rem,2vmin,.9rem); color:#888; margin-bottom:1px; align-self:flex-end; }
+.tm-top{ display:flex; flex-direction:column; align-items:center; }
+.tone-t{ font-size:clamp(.4rem,2vmin,.9rem); color:#888; line-height:1; }
+
+.controls{
+  display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:10px;
+}
+.ctrl-btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px; border:none; border-radius:14px;
+  padding:clamp(8px,1.6vmin,14px) clamp(14px,3vmin,26px);
+  font-family:var(--fnt); font-size:clamp(14px,2.2vmin,20px); font-weight:700; cursor:pointer;
+  box-shadow:0 3px 0 rgba(0,0,0,0.15); transition:transform .1s;
+  white-space:nowrap;
+}
+.ctrl-btn .icon{ font-size:18px; line-height:1; }
+.ctrl-btn:active{ transform:translateY(2px); box-shadow:none; }
+.replay{ background:#ffe08a; color:#7a5200; }
+.prev,.next{ background:#c9f2c0; color:#245c1a; }
+.prev:disabled,.next:disabled{ opacity:.35; cursor:default; }
+@media (orientation: portrait){
+  .controls{
+    flex-wrap:nowrap;
+    width:100%;
+    gap:clamp(4px,2vw,12px);
+  }
+  .ctrl-btn{
+    flex:1 1 0;
+    min-width:0;
+    gap:clamp(2px,1.2vw,8px);
+    padding:clamp(6px,1.8vw,14px) clamp(4px,2.4vw,22px);
+    font-size:clamp(11px,3.1vw,20px);
+  }
+  .ctrl-btn .icon{ font-size:clamp(13px,3.6vw,18px); }
+}
+
 @keyframes ds{from{stroke-dashoffset:var(--dl)}to{stroke-dashoffset:0}}
 </style>
 </head>
 <body>
-<div class="layout">
-  <div class="lp" id="lp"></div>
-  <div class="resizer" id="resizer"></div>
-  <div class="rp" id="rp"></div>
+<div class="chart-wrap"><div class="chart" id="chart"></div></div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <button class="close-btn" id="closeBtn">✕</button>
+    <div class="dcard-row" id="dcardRow"></div>
+    <div class="controls">
+      <button class="ctrl-btn prev" id="prevBtn"><span class="icon">⬅️</span><span>上一個</span></button>
+      <button class="ctrl-btn replay" id="replayBtn"><span class="icon">🔁</span><span>重播</span></button>
+      <button class="ctrl-btn next" id="nextBtn"><span class="icon">➡️</span><span>下一個</span></button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -241,8 +406,8 @@ const BOPO = [
   {sym:'ㄞ',type:'f',name:'愛心',  ec:'2764_fe0f',
    rd:[{h:'愛',p:['ㄞ'],t:'4'},{h:'心',p:['ㄒ','ㄧ','ㄣ'],t:'1'}],
    sk:['M 20 20 L 80 20','M 30 24 L 24 50 L 76 50 Q 72 70 66 80','M 54 20 Q 52 60 24 80']},
-  {sym:'ㄟ',type:'f',name:'杯子',  ec:'1fad7',
-   rd:[{h:'杯',p:['ㄅ','ㄟ'],t:'1'},{h:'子',p:['ㄗ'],t:'0'}],
+  {sym:'ㄟ',type:'f',name:'飛機',  ec:'2708_fe0f',
+   rd:[{h:'飛',p:['ㄈ','ㄟ'],t:'1'},{h:'機',p:['ㄐ','ㄧ'],t:'1'}],
    sk:['M 20 40 L 42 26 Q 50 60 80 80']},
   {sym:'ㄠ',type:'f',name:'泡泡',  ec:'1fae7',
    rd:[{h:'泡',p:['ㄆ','ㄠ'],t:'4'},{h:'泡',p:['ㄆ','ㄠ'],t:'0'}],
@@ -267,117 +432,64 @@ const BOPO = [
    sk:['M 40 20 Q 40 70 20 80','M 60 20 L 60 70 Q 60 80 70 80 L 80 80']},
 ];
 
-const GROUPS = [
-  {type:'i',label:'聲母',cls:'gi',rows:[['ㄅ','ㄆ','ㄇ','ㄈ'],['ㄉ','ㄊ','ㄋ','ㄌ'],['ㄍ','ㄎ','ㄏ'],['ㄐ','ㄑ','ㄒ'],['ㄓ','ㄔ','ㄕ','ㄖ'],['ㄗ','ㄘ','ㄙ']]},
-  {type:'m',label:'介母',cls:'gm',rows:[['ㄧ','ㄨ','ㄩ']]},
-  {type:'f',label:'韻母',cls:'gf',rows:[['ㄚ','ㄛ','ㄜ','ㄝ'],['ㄞ','ㄟ','ㄠ','ㄡ'],['ㄢ','ㄣ','ㄤ','ㄥ'],['ㄦ']]},
-];
-
 const smap = {};
 BOPO.forEach(b => smap[b.sym] = b);
-const cardMap = {};
 let animGen = 0;
+let currentIndex = 0;
 
-const lp = document.getElementById('lp');
-GROUPS.forEach(g => {
-  const blk = document.createElement('div');
-  blk.className = `grp ${g.cls}`;
-  g.rows.forEach(row => {
-    const rowEl = document.createElement('div');
-    rowEl.className = 'grow';
-    row.forEach(sym => {
-      const item = smap[sym]; if (!item) return;
-      const card = document.createElement('div');
-      card.className = `bc ${item.type}`;
-      card.textContent = sym; card.title = item.name;
-      card.addEventListener('click', () => pick(item, card));
-      cardMap[sym] = card;
-      rowEl.appendChild(card);
-    });
-    blk.appendChild(rowEl);
-  });
-  lp.appendChild(blk);
+// 傳統注音符號表排列方式：聲母/介母/韻母依序分為 11 組，每組人數為 4 4 3 3 4 3 3 4 4 4 1
+const GROUP_SIZES = [4, 4, 3, 3, 4, 3, 3, 4, 4, 4, 1];
+const chartEl = document.getElementById('chart');
+let cursor = 0;
+GROUP_SIZES.forEach(size => {
+  const groupEl = document.createElement('div');
+  groupEl.className = 'group';
+  for (let i = 0; i < size; i++) {
+    const idx = cursor++;
+    const item = BOPO[idx];
+    const btn = document.createElement('button');
+    btn.className = `bc ${item.type}`;
+    btn.type = 'button';
+    btn.textContent = item.sym;
+    btn.title = item.name;
+    btn.addEventListener('click', () => openSym(idx));
+    addThumb(btn, item);
+    groupEl.appendChild(btn);
+  }
+  chartEl.appendChild(groupEl);
 });
 
-// 若左側面板空間足夠（在能同時完整顯示全部37個注音符號按鈕的前提下），
-// 自動放大按鈕與其內文字，讓畫面利用率更好；空間不足時維持原本大小(可捲動)。
-(function initGridAutoFit(){
-  const BASE_SIZE = 50;   // 按鈕原始邊長(px)
-  const BASE_FS = 1.45;   // 按鈕原始字型大小(rem)
-  const GAP = 4;          // .grow 內按鈕間距(px)，與CSS一致
+const overlay = document.getElementById('overlay');
+const closeBtn = document.getElementById('closeBtn');
+const replayBtn = document.getElementById('replayBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
 
-  const totalRows = GROUPS.reduce((s, g) => s + g.rows.length, 0);
-  const maxCols = Math.max(...GROUPS.flatMap(g => g.rows.map(r => r.length)));
-
-  // 在尚未套用任何放大前，量測非按鈕本身佔用的高度(群組標籤、各種margin/padding等)。
-  // 這裡刻意不用 lp.scrollHeight：當面板本身比內容還高時，scrollHeight會直接等於
-  // clientHeight（因為完全不需要捲動），量出來的高度會被嚴重高估，導致後面永遠算不出
-  // 可以放大的空間。改用第一個與最後一個群組的 getBoundingClientRect() 來精確算出
-  // 「內容實際佔用的高度」，不受面板本身高度影響。
-  const grpEls = lp.querySelectorAll('.grp');
-  let nonButtonHeight = 0;
-  if (grpEls.length > 0) {
-    const firstTop = grpEls[0].getBoundingClientRect().top;
-    const lastBottom = grpEls[grpEls.length - 1].getBoundingClientRect().bottom;
-    const contentHeight = lastBottom - firstTop;
-    nonButtonHeight = contentHeight - totalRows * BASE_SIZE;
-  }
-
-  function fit() {
-    const cs = getComputedStyle(lp);
-    const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
-
-    // 注意：这里刻意使用 offsetWidth（元素本身的版面寬度，不受內部捲軸出現與否影響），
-    // 而不是 clientWidth。因為 clientWidth 會在直向捲軸出現/消失時跟著變動，
-    // 若拿它來計算按鈕尺寸，會形成「按鈕變大→內容超高→捲軸出現→可用寬度變小→
-    // 按鈕變小→內容不再超高→捲軸消失→可用寬度變大→按鈕又變大→...」的無窮迴圈，
-    // 造成 ResizeObserver 不斷觸發、按鈕尺寸不停跳動。改用不受捲軸影響的 offsetWidth，
-    // 並固定預留一段捲軸寬度，即可讓計算結果穩定，不再受捲軸狀態牽動。
-    const SCROLLBAR_RESERVE = 16; // 預留可能出現的捲軸寬度
-    const availW = lp.offsetWidth - padX - SCROLLBAR_RESERVE;
-    const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
-    // 注意：nonButtonHeight 是用 .grp 的 getBoundingClientRect() 量出「內容本身」的高度
-    // （第一個群組頂端到最後一個群組底端），這個範圍不包含 #lp 自己的上下 padding。
-    // 因此這裡也必須把 lp.clientHeight 的 padding 扣掉，讓兩邊基準一致(都只算內容區)，
-    // 否則會把 padding 誤當成可以拿來放大按鈕的空間，導致內容整體多出約一個 padding
-    // 的高度而冒出垂直捲軸。
-    const availH = lp.clientHeight - padY;
-
-    const maxByWidth = (availW - (maxCols - 1) * GAP) / maxCols;
-    // 高度足夠時的放大原則：以「能同時顯示全部37個注音符號、且不出現垂直捲軸」為準。
-    // 這裡預留 SAFETY_MARGIN 這一點點緩衝空間，避免字型、瀏覽器算繪造成的次像素誤差
-    // 讓實際內容高度剛好比可用高度多出一點點，進而意外冒出垂直捲軸。
-    const SAFETY_MARGIN = 2; // px
-    const maxByHeight = (availH - nonButtonHeight - SAFETY_MARGIN) / totalRows;
-
-    let size = Math.floor(Math.min(maxByWidth, maxByHeight));
-    size = Math.max(BASE_SIZE, size); // 只放大，不縮小，空間不足時退回原始尺寸並讓面板可捲動
-
-    const fs = (BASE_FS * size / BASE_SIZE).toFixed(3);
-    const grpW = maxCols * size + (maxCols - 1) * GAP;
-
-    lp.style.setProperty('--bc-size', size + 'px');
-    lp.style.setProperty('--bc-fs', fs + 'rem');
-    lp.style.setProperty('--grp-w', grpW + 'px');
-  }
-
-  fit();
-  if (window.ResizeObserver) {
-    new ResizeObserver(fit).observe(lp);
-  } else {
-    window.addEventListener('resize', fit);
-    window.addEventListener('orientationchange', fit);
-  }
-})();
-
-let selCard = null;
-function pick(item, card) {
-  if (selCard) selCard.classList.remove('sel');
-  card.classList.add('sel'); selCard = card;
-  render(item); speak(item);
+function openSym(idx) {
+  playIndex(idx);
+  overlay.classList.add('show');
 }
+function closeModal() {
+  overlay.classList.remove('show');
+  animGen++;
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+}
+closeBtn.addEventListener('click', closeModal);
+overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
-pick(smap['ㄅ'], cardMap['ㄅ']);
+replayBtn.addEventListener('click', () => playIndex(currentIndex));
+prevBtn.addEventListener('click', () => { if (currentIndex > 0) playIndex(currentIndex - 1); });
+nextBtn.addEventListener('click', () => { if (currentIndex < BOPO.length - 1) playIndex(currentIndex + 1); });
+
+function playIndex(idx) {
+  currentIndex = idx;
+  const item = BOPO[idx];
+  render(item);
+  speak(item);
+  prevBtn.disabled = (idx === 0);
+  nextBtn.disabled = (idx === BOPO.length - 1);
+}
 
 function makeUtter(txt) {
   const voices = window.speechSynthesis.getVoices();
@@ -442,6 +554,28 @@ function loadEmoji(item, container) {
 function showFb(container, item) {
   container.innerHTML = `<span class="fb-emoji">${getEmoji(item)}</span>`;
 }
+function addThumb(btn, item) {
+  if (!item.ec) {
+    const span = document.createElement('span');
+    span.className = 'bc-thumb-fb';
+    span.textContent = getEmoji(item);
+    btn.appendChild(span);
+    return;
+  }
+  const img = document.createElement('img');
+  img.className = 'bc-thumb';
+  img.alt = '';
+  // 主頁按鈕縮圖固定使用 PNG（靜態格式，不會有動畫），詳解卡片內的圖片維持原本 webp/gif 不變
+  img.src = `https://fonts.gstatic.com/s/e/notoemoji/latest/${item.ec}/512.png`;
+  img.onerror = () => {
+    img.remove();
+    const span = document.createElement('span');
+    span.className = 'bc-thumb-fb';
+    span.textContent = getEmoji(item);
+    btn.appendChild(span);
+  };
+  btn.appendChild(img);
+}
 function getEmoji(item) {
   const map = {
     '冰淇淋':'🍦','蘋果':'🍎','貓咪':'🐱','房子':'🏠','蛋糕':'🍰','兔子':'🐰',
@@ -477,56 +611,36 @@ function mkCharBlocks(rdArr) {
   }).join('');
 }
 
-function syncBgRectRadius() {
-  const rp = document.getElementById('rp');
-  const rect = document.getElementById('bgrect');
-  if (!rp || !rect) return;
-  const sizePx = parseFloat(getComputedStyle(rp).getPropertyValue('--sq')) || 0;
-  const targetPx = 14;
-  const rx = sizePx > 0 ? Math.min(50, (targetPx * 100) / sizePx) : 7;
-  rect.setAttribute('rx', rx.toFixed(2));
-}
-
 function render(item) {
-  const rp = document.getElementById('rp');
+  const row = document.getElementById('dcardRow');
   const ghostPaths = item.sk.map(d =>
     `<path d="${d}" fill="none" stroke="#C8C8C8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`
   ).join('');
 
-  rp.innerHTML = `
-    <div class="dcard">
-      <div class="sbox">
-        <div class="svg-wrap">
-          <svg id="ssvg" viewBox="0 0 100 100" width="130" height="130" xmlns="http://www.w3.org/2000/svg">
-            <rect id="bgrect" width="100" height="100" fill="#F7F8FA" rx="7"/>
-            <line x1="50" y1="0" x2="50" y2="100" stroke="#EEEEEE" stroke-width="0.5"/>
-            <line x1="0" y1="50" x2="100" y2="50" stroke="#EEEEEE" stroke-width="0.5"/>
-            ${ghostPaths}
-            <g id="ag"></g>
-          </svg>
-        </div>
-      </div>
-
-      <div class="imgbox">
-        <div class="imgarea" id="ea"><span style="font-size:2rem">⏳</span></div>
-        <div class="wordrow">
-          ${mkCharBlocks(item.rd)}
-        </div>
+  row.innerHTML = `
+    <div class="sbox" title="重播筆劃動畫">
+      <svg id="ssvg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="100" fill="#F7F8FA" rx="7"/>
+        <line x1="50" y1="0" x2="50" y2="100" stroke="#EEEEEE" stroke-width="0.5"/>
+        <line x1="0" y1="50" x2="100" y2="50" stroke="#EEEEEE" stroke-width="0.5"/>
+        ${ghostPaths}
+        <g id="ag"></g>
+      </svg>
+    </div>
+    <div class="imgbox" title="念出這個詞">
+      <div class="imgarea" id="ea"><span style="font-size:2rem">⏳</span></div>
+      <div class="wordrow">
+        ${mkCharBlocks(item.rd)}
       </div>
     </div>`;
 
   loadEmoji(item, document.getElementById('ea'));
   animStrokes(item);
-  syncBgRectRadius();
 
-  const sbox = rp.querySelector('.sbox');
-  sbox.style.cursor = 'pointer';
-  sbox.title = '重播筆劃動畫';
+  const sbox = row.querySelector('.sbox');
   sbox.addEventListener('click', () => { animStrokes(item); speakSym(item); });
 
-  const imgbox = rp.querySelector('.imgbox');
-  imgbox.style.cursor = 'pointer';
-  imgbox.title = '念出這個詞';
+  const imgbox = row.querySelector('.imgbox');
   imgbox.addEventListener('click', () => speakWord(item));
 }
 
@@ -536,31 +650,33 @@ function animStrokes(item) {
   const myGen = ++animGen;
   const strokeColor = item.type === 'i' ? '#E84040' : item.type === 'm' ? '#0FA870' : '#2E86DE';
 
-  // 先量測每一筆的長度，讓每一筆的動畫時間依長度等比例分配，維持繪製速度一致
-  const lens = item.sk.map(d => {
-    const tmp = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    tmp.setAttribute('d', d);
-    g.appendChild(tmp);
+  // 讓每一筆的「畫筆速度」固定，筆劃長度較長者花較多時間、較短者花較少時間
+  const SPEED = 0.08;    // px / ms（畫筆移動速度）
+  const MIN_DUR = 300;   // 單筆最短動畫時間 (ms)
+  const MAX_DUR = 1400;  // 單筆最長動畫時間 (ms)
+  const GAP = 200;       // 每筆畫完到下一筆開始的間隔 (ms)
+  const START_DELAY = 800; // 第一筆開始前的延遲
+
+  // 先算出每一筆的長度與所需時間，才能依序安排開始時間
+  const plans = item.sk.map(d => {
     let len = 80;
-    try { len = tmp.getTotalLength() || 80; } catch(e) {}
-    g.removeChild(tmp);
-    return len;
+    try {
+      const tmp = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      tmp.setAttribute('d', d);
+      len = tmp.getTotalLength() || 80;
+    } catch (e) {}
+    //const dur = Math.min(MAX_DUR, Math.max(MIN_DUR, len / SPEED));
+	const dur = (len / SPEED);
+    return { d, dur };
   });
 
-  const SPEED = 160;    // 每秒繪製的長度(px)，數值越大整體動畫越快
-  const MIN_DUR = 0.35; // 單筆最短動畫時間(秒)，避免極短筆劃時間趨近於0
-  const GAP = 150;      // 每筆完成到下一筆開始的間隔(ms)
-
-  let delay = 800; // 第一筆開始前的等待時間
-  item.sk.forEach((d, i) => {
-    const len = lens[i];
-    const dur = Math.max(MIN_DUR, len / SPEED);
-    const startDelay = delay;
+  let delay = START_DELAY;
+  plans.forEach(plan => {
     setTimeout(() => {
       if (myGen !== animGen) return;
       const g2 = document.getElementById('ag'); if (!g2) return;
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', d);
+      path.setAttribute('d', plan.d);
       path.setAttribute('fill', 'none');
       path.setAttribute('stroke', strokeColor);
       path.setAttribute('stroke-width', '5');
@@ -568,129 +684,20 @@ function animStrokes(item) {
       path.setAttribute('stroke-linejoin', 'round');
       g2.appendChild(path);
       try {
-        const len2 = path.getTotalLength() || len || 80;
-        path.style.setProperty('--dl', len2);
-        path.style.strokeDasharray = len2;
-        path.style.strokeDashoffset = len2;
-        path.style.animation = `ds ${dur}s linear forwards`;
+        const len = path.getTotalLength() || 80;
+        path.style.setProperty('--dl', len);
+        path.style.strokeDasharray = len;
+        path.style.strokeDashoffset = len;
+        // path.style.animation = `ds ${plan.dur}ms ease forwards`;
+		path.style.animation = `ds ${plan.dur}ms linear forwards`;
       } catch(e) {
         path.style.opacity = '0';
         setTimeout(() => { path.style.transition = 'opacity .3s'; path.style.opacity = '1'; }, 20);
       }
-    }, startDelay);
-    delay += dur * 1000 + GAP;
+    }, delay);
+    delay += plan.dur + GAP;
   });
 }
-
-(function initResizer(){
-  const layout = document.querySelector('.layout');
-  const resizer = document.getElementById('resizer');
-  if (!layout || !resizer) return;
-  let dragging = false;
-  const mq = window.matchMedia('(max-width:660px)');
-  const isMobile = () => mq.matches;
-  const mqLandscapePhone = window.matchMedia('(max-height:500px) and (orientation:landscape)');
-  const isLandscapePhone = () => mqLandscapePhone.matches;
-
-  const RES_W = 6;
-  const MIN_LEFT = 250; // 左邊需容納 4 個注音符號卡的最小寬度
-  const MIN_RIGHT = 200; // 一般情況下右邊保留的最小寬度
-
-  function setColsPx(leftPx, totalWidth, layoutHeight) {
-    let maxLeft;
-    if (isLandscapePhone()) {
-      const minRightWidth = layoutHeight * 2; // 手機橫式：右邊寬度應為高度的兩倍以上
-      maxLeft = totalWidth - RES_W - minRightWidth;
-      if (maxLeft < MIN_LEFT) maxLeft = MIN_LEFT; // 螢幕過窄時，優先保證左邊最小寬度
-    } else {
-      maxLeft = totalWidth - RES_W - MIN_RIGHT;
-      if (maxLeft < MIN_LEFT) maxLeft = MIN_LEFT;
-    }
-    leftPx = Math.min(Math.max(leftPx, MIN_LEFT), maxLeft);
-    const rightPx = totalWidth - leftPx - RES_W;
-    layout.style.gridTemplateColumns = `${leftPx}px ${RES_W}px ${rightPx}px`;
-  }
-  function setRows(topPct) {
-    topPct = Math.min(80, Math.max(20, topPct));
-    layout.style.gridTemplateRows = `${topPct}% 6px ${100 - topPct}%`;
-  }
-
-  function moveAt(clientX, clientY) {
-    const rect = layout.getBoundingClientRect();
-    if (isMobile()) {
-      const pct = ((clientY - rect.top) / rect.height) * 100;
-      setRows(pct);
-    } else {
-      const leftPx = clientX - rect.left;
-      setColsPx(leftPx, rect.width, rect.height);
-    }
-  }
-
-  function down(e) {
-    dragging = true;
-    resizer.classList.add('active');
-    document.body.style.userSelect = 'none';
-    e.preventDefault();
-  }
-  function move(e) {
-    if (!dragging) return;
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    moveAt(clientX, clientY);
-  }
-  function up() {
-    if (!dragging) return;
-    dragging = false;
-    resizer.classList.remove('active');
-    document.body.style.userSelect = '';
-  }
-
-  function resetGridInline() {
-    layout.style.gridTemplateColumns = '';
-    layout.style.gridTemplateRows = '';
-  }
-  if (mq.addEventListener) mq.addEventListener('change', resetGridInline);
-  else if (mq.addListener) mq.addListener(resetGridInline);
-
-  resizer.addEventListener('mousedown', down);
-  window.addEventListener('mousemove', move);
-  window.addEventListener('mouseup', up);
-
-  resizer.addEventListener('touchstart', down, {passive:false});
-  window.addEventListener('touchmove', move, {passive:false});
-  window.addEventListener('touchend', up);
-})();
-
-(function initWideMode(){
-  const rp = document.getElementById('rp');
-  if (!rp || !window.ResizeObserver) return;
-  function update() {
-    const cs = getComputedStyle(rp);
-    const padL = parseFloat(cs.paddingLeft)||0, padR = parseFloat(cs.paddingRight)||0;
-    const padT = parseFloat(cs.paddingTop)||0, padB = parseFloat(cs.paddingBottom)||0;
-    const availW = rp.clientWidth - padL - padR;
-    const availH = rp.clientHeight - padT - padB;
-    const wide = availW > availH * 1.05;
-    rp.classList.toggle('wide', wide);
-
-    const dcard = rp.querySelector('.dcard');
-    let dPadL = 18, dPadR = 18, dPadT = 18, dPadB = 18, gap = 16;
-    if (dcard) {
-      const dcs = getComputedStyle(dcard);
-      dPadL = parseFloat(dcs.paddingLeft)||0; dPadR = parseFloat(dcs.paddingRight)||0;
-      dPadT = parseFloat(dcs.paddingTop)||0; dPadB = parseFloat(dcs.paddingBottom)||0;
-      gap = parseFloat(dcs.rowGap || dcs.gap) || 16;
-    }
-    const innerW = availW - dPadL - dPadR;
-    const innerH = availH - dPadT - dPadB;
-    let size = wide ? Math.min(innerH, (innerW - gap) / 2) : Math.min(innerW, (innerH - gap) / 2);
-    size = Math.max(size, 60);
-    rp.style.setProperty('--sq', size + 'px');
-    syncBgRectRadius();
-  }
-  new ResizeObserver(update).observe(rp);
-  update();
-})();
 
 if (window.speechSynthesis) {
   window.speechSynthesis.getVoices();
