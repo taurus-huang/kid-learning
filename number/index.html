@@ -169,7 +169,7 @@
     box-shadow:0 3px 0 rgba(0,0,0,0.15);
     transition:transform .1s;
   }
-  .ctrl-btn .icon{ font-size:18px; line-height:1; }
+  .ctrl-btn svg{ width:clamp(20px,4vw,28px); height:clamp(20px,4vw,28px); display:block; }
   .ctrl-btn:active{ transform:translateY(2px); box-shadow:none; }
   .replay{ background:#ffe08a; color:#7a5200; }
   .prev,.next{ background:#c9f2c0; color:#245c1a; }
@@ -188,9 +188,24 @@
     <button class="close-btn" id="closeBtn">✕</button>
     <div class="digits-row" id="digitsRow"></div>
     <div class="controls">
-      <button class="ctrl-btn prev" id="prevBtn"><span class="icon">⬅️</span><span>上一個</span></button>
-      <button class="ctrl-btn replay" id="replayBtn"><span class="icon">🔁</span><span>重播</span></button>
-      <button class="ctrl-btn next" id="nextBtn"><span class="icon">➡️</span><span>下一個</span></button>
+      <button class="ctrl-btn prev" id="prevBtn" aria-label="上一個">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="21" y1="12" x2="6" y2="12"></line>
+          <polyline points="13,5 6,12 13,19"></polyline>
+        </svg>
+      </button>
+      <button class="ctrl-btn replay" id="replayBtn" aria-label="重播">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19.3,10 A8,8 0 1 0 19,17"></path>
+          <polyline points="20,4 20,11 13,11"></polyline>
+        </svg>
+      </button>
+      <button class="ctrl-btn next" id="nextBtn" aria-label="下一個">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="18" y2="12"></line>
+          <polyline points="11,5 18,12 11,19"></polyline>
+        </svg>
+      </button>
     </div>
   </div>
 </div>
