@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>注音符號</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Noto+Sans+TC:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Huninn&family=Noto+Sans+TC:wght@400;700&display=swap');
 :root{
   --ini:#E84040;--ini-bg:#FFF0F0;--ini-br:#FFBABA;
   --med:#0FA870;--med-bg:#EAFAF4;--med-br:#80DDB8;
@@ -13,6 +13,7 @@
   --page:#FFF9F0;--dark:#2D2D2D;--mid:#636E72;
   --fnt:'Nunito','Noto Sans TC',sans-serif;
   --fzh:'Noto Sans TC',sans-serif;
+  --fhz:'Huninn',sans-serif;
   --bcw: clamp(52px,9vw,72px);
   --bcgap: 8px;
   --dbox: clamp(140px, min(60vw,34vh), 380px);
@@ -152,7 +153,7 @@ body{
   backdrop-filter:blur(6px);
   -webkit-backdrop-filter:blur(6px);
   border-radius:28px;
-  padding:clamp(16px,3vmin,40px) clamp(18px,4vmin,48px) clamp(20px,4vmin,48px);
+  padding:clamp(52px,9vmin,76px) clamp(18px,4vmin,48px) clamp(20px,4vmin,48px);
   max-width:min(94vw,1200px);
   max-height:92vh;
   overflow-y:auto;
@@ -201,14 +202,14 @@ body{
   background:#F7F8FA; border-top:1px solid #EEE; flex-wrap:wrap; justify-content:center;
 }
 .charblock{ display:flex; flex-direction:row; align-items:center; gap:2px; }
-.hz{ font-size:clamp(1.2rem,5vmin,2.6rem); font-weight:700; font-family:var(--fzh); line-height:1; }
+.hz{ font-size:clamp(1.6rem,6.5vmin,3.4rem); font-weight:400; font-family:var(--fhz); line-height:1; }
 .bpcol{ display:flex; flex-direction:column; align-items:center; }
-.bpchars{ display:flex; flex-direction:column; align-items:center; font-size:clamp(.5rem,2.4vmin,1.1rem); font-family:var(--fzh); color:#333; line-height:1.25; }
+.bpchars{ display:flex; flex-direction:column; align-items:center; font-size:clamp(.5rem,2.4vmin,1.1rem); font-family:var(--fzh); color:#333; line-height:1.05; }
 .bpchars span{ display:block; text-align:center; }
 .tm-side{ display:flex; flex-direction:row; align-items:flex-end; }
-.tone-r{ font-size:clamp(.4rem,2vmin,.9rem); color:#888; margin-bottom:1px; align-self:flex-end; }
-.tm-top{ display:flex; flex-direction:column; align-items:center; }
-.tone-t{ font-size:clamp(.4rem,2vmin,.9rem); color:#888; line-height:1; }
+.tone-r{ font-size:clamp(.65rem,4vmin,2rem); color:#888; align-self:flex-end; position:relative; top:0.4em; left:-0.1em; }
+.tm-top{ display:flex; flex-direction:column; align-items:center; position:relative; top:-0.25em; }
+.tone-t{ font-size:clamp(.65rem,4vmin,2rem); color:#888; line-height:1; margin-bottom:-0.2em; }
 
 .controls{
   display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:10px;
