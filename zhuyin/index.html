@@ -168,7 +168,14 @@ body{
   background:#ffdede; border:none; color:#a33;
   width:clamp(32px,5vmin,44px); height:clamp(32px,5vmin,44px);
   border-radius:50%; font-size:clamp(16px,2.6vmin,22px); font-weight:800; cursor:pointer;
+  transition:transform .12s ease, box-shadow .12s ease, background-color .12s ease;
 }
+.close-btn:hover{
+  background:#ffc2c2;
+  transform:scale(1.1);
+  box-shadow:0 4px 10px rgba(0,0,0,0.18);
+}
+.close-btn:active{ transform:scale(.95); box-shadow:none; }
 .dcard-row{
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:clamp(16px,3vmin,32px); margin:10px 0 20px;
@@ -218,11 +225,21 @@ body{
   display:inline-flex; align-items:center; justify-content:center; gap:8px; border:none; border-radius:14px;
   padding:clamp(8px,1.6vmin,14px) clamp(14px,3vmin,26px);
   font-family:var(--fnt); font-size:clamp(14px,2.2vmin,20px); font-weight:700; cursor:pointer;
-  box-shadow:0 3px 0 rgba(0,0,0,0.15); transition:transform .1s;
+  box-shadow:0 3px 0 rgba(0,0,0,0.15); transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
   white-space:nowrap;
 }
 .ctrl-btn svg{ width:clamp(20px,4vw,28px); height:clamp(20px,4vw,28px); display:block; }
-.ctrl-btn:active{ transform:translateY(2px); box-shadow:none; }
+.ctrl-btn:not(:disabled):hover{
+  transform:translateY(-2px);
+  filter:brightness(1.06) saturate(1.2);
+  box-shadow:0 5px 0 rgba(0,0,0,0.15), 0 8px 12px rgba(0,0,0,0.12);
+}
+.ctrl-btn:not(:disabled):active{
+  transform:translateY(3px) scale(.96);
+  box-shadow:none;
+  filter:brightness(.92);
+  transition:transform .05s ease, box-shadow .05s ease, filter .05s ease;
+}
 .replay{ background:#ffe08a; color:#7a5200; }
 .prev,.next{ background:#c9f2c0; color:#245c1a; }
 .prev:disabled,.next:disabled{ opacity:.35; cursor:default; }
@@ -254,8 +271,8 @@ body{
     <div class="controls">
       <button class="ctrl-btn prev" id="prevBtn" aria-label="上一個">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="21" y1="12" x2="6" y2="12"></line>
-          <polyline points="13,5 6,12 13,19"></polyline>
+          <line x1="12" y1="21" x2="12" y2="6"></line>
+          <polyline points="5,13 12,6 19,13"></polyline>
         </svg>
       </button>
       <button class="ctrl-btn replay" id="replayBtn" aria-label="重播">
@@ -266,8 +283,8 @@ body{
       </button>
       <button class="ctrl-btn next" id="nextBtn" aria-label="下一個">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="3" y1="12" x2="18" y2="12"></line>
-          <polyline points="11,5 18,12 11,19"></polyline>
+          <line x1="12" y1="3" x2="12" y2="18"></line>
+          <polyline points="5,11 12,18 19,11"></polyline>
         </svg>
       </button>
     </div>
