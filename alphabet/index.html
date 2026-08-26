@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英文字母</title>
+<script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Noto+Sans+TC:wght@400;700&display=swap');
+:root{
+  --ini:#E84040;--ini-bg:#FFF0F0;--ini-br:#FFBABA;
+  --med:#0FA870;--med-bg:#EAFAF4;--med-br:#80DDB8;
+  --fin:#2E86DE;--fin-bg:#EAF3FF;--fin-br:#A9D0F5;
+  --vow:#B25CE0;--vow-bg:#F6ECFF;--vow-br:#DCB8FA;
+  --page:#FFF9F0;--dark:#2D2D2D;--mid:#636E72;
+  --fnt:'Nunito','Noto Sans TC',sans-serif;
+  --fzh:'Noto Sans TC',sans-serif;
+  --dbox: clamp(140px, min(60vw,34vh), 380px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html, body{ height:100%; overflow:hidden; }
+body{
+  font-family:var(--fnt);
+  background:linear-gradient(160deg,#fff6e5,#e8f7ff 60%,#f0ffe8);
+  display:flex;
+  flex-direction:column;
+  padding:clamp(36px,7vmin,90px);
+  -webkit-tap-highlight-color: transparent;
+}
+.title{
+  text-align:center;
+  font-weight:900;
+  font-size:clamp(20px,4vw,30px);
+  color:var(--dark);
+  letter-spacing:1px;
+  margin-bottom:6px;
+}
+.subtitle{
+  text-align:center;
+  font-family:var(--fzh);
+  color:var(--mid);
+  font-size:clamp(12px,2.4vw,15px);
+  margin-bottom:14px;
+}
+.chart-wrap{ width:100%; }
+.chart-wrap{
+  flex:1 1 auto;
+  min-height:0;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:visible;
+}
+.chart{
+  display:grid;
+  justify-content:center;
+  align-content:center;
+}
+.bc{
+  border-radius:16px;
+  border:2px solid transparent;
+  font-family:var(--fnt);
+  font-weight:800;
+  cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  box-shadow:0 4px 0 rgba(0,0,0,0.12), 0 6px 10px rgba(0,0,0,0.06);
+  transition:transform .12s ease, box-shadow .12s ease;
+  user-select:none;
+  -webkit-tap-highlight-color: transparent;
+  overflow:hidden;
+  padding:4% 2%;
+}
+.bc-anim{
+  width:58%;
+  flex:1 1 auto;
+  min-height:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+}
+.bc-anim img{
+  width:100%; height:100%; object-fit:contain;
+}
+.bc-letter{
+  font-family:var(--fnt);
+  font-weight:800;
+  line-height:1;
+  flex:0 0 auto;
+}
+.bc.i{background:var(--ini-bg);color:var(--ini);border-color:var(--ini-br)}
+.bc.m{background:var(--med-bg);color:var(--med);border-color:var(--med-br)}
+.bc.f{background:var(--fin-bg);color:var(--fin);border-color:var(--fin-br)}
+.bc.v{background:var(--vow-bg);color:var(--vow);border-color:var(--vow-br)}
+.bc:hover{
+  transform:translateY(-3px) scale(1.08);
+  filter:brightness(1.08) saturate(1.3);
+  box-shadow:0 6px 0 rgba(0,0,0,0.15), 0 10px 16px rgba(0,0,0,0.15);
+}
+.bc:active{ transform:translateY(2px) scale(.96); box-shadow:0 1px 0 rgba(0,0,0,0.12); }
+
+/* modal */
+.overlay{
+  position:fixed; inset:0;
+  background:rgba(40,30,20,0.55);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:50;
+  padding:16px;
+}
+.overlay.show{ display:flex; }
+.modal{
+  background:rgba(255,253,247,0.72);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  border-radius:28px;
+  padding:clamp(52px,9vmin,76px) clamp(18px,4vmin,48px) clamp(20px,4vmin,48px);
+  max-width:min(94vw,1200px);
+  max-height:92vh;
+  overflow-y:auto;
+  text-align:center;
+  box-shadow:0 20px 50px rgba(0,0,0,0.35);
+  position:relative;
+  animation:pop .25s ease;
+}
+@keyframes pop{ from{transform:scale(.85);opacity:0} to{transform:scale(1);opacity:1} }
+.close-btn{
+  position:absolute; top:12px; right:14px;
+  background:#ffdede; border:none; color:#a33;
+  width:clamp(32px,5vmin,44px); height:clamp(32px,5vmin,44px);
+  border-radius:50%; font-size:clamp(16px,2.6vmin,22px); font-weight:800; cursor:pointer;
+  transition:transform .12s ease, box-shadow .12s ease, background-color .12s ease;
+}
+.close-btn:hover{
+  background:#ffc2c2;
+  transform:scale(1.1);
+  box-shadow:0 4px 10px rgba(0,0,0,0.18);
+}
+.close-btn:active{ transform:scale(.95); box-shadow:none; }
+.dcard-row{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:clamp(16px,3vmin,32px); margin:10px 0 20px;
+}
+@media (orientation: landscape){
+  .dcard-row{ flex-direction:row; align-items:stretch; }
+  :root{ --dbox: clamp(140px, min(30vw,58vh), 380px); }
+}
+@media (orientation: portrait){
+  :root{ --dbox: clamp(110px, min(60vw, calc((92vh - 220px) / 2)), 340px); }
+}
+.sbox{
+  width:var(--dbox); height:var(--dbox);
+  flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  border:2px solid #EEE; border-radius:14px; background:#F7F8FA;
+  overflow:hidden;
+  transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+.sbox:hover{ border-color:#93C5FD; box-shadow:0 4px 14px rgba(0,0,0,.12); transform:scale(1.03); }
+.sbox .letter-stage{
+  width:92%; height:88%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:3%;
+}
+.slot-upper, .slot-lower{
+  flex:1 1 0; height:100%;
+  min-width:0;
+}
+.sbox svg{ width:100%; height:100%; overflow:visible; display:block; }
+.sbox svg path{
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.sbox svg path.guide{
+  stroke:#DBE0E6;
+  stroke-width:15;
+}
+.sbox svg path.draw{
+  stroke:currentColor;
+  stroke-width:15;
+}
+.sbox{ position:relative; container-type:size; container-name:sbox; }
+.imgbox{
+  width:var(--dbox); height:var(--dbox); flex:0 0 auto; border-radius:14px; overflow:hidden;
+  border:2px solid #EEE; background:#F4F6FF; display:flex; flex-direction:column;
+  container-type:size; container-name:imgbox; cursor:pointer;
+  transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+.imgbox:hover{ border-color:#93C5FD; box-shadow:0 4px 14px rgba(0,0,0,.12); transform:scale(1.03); }
+.imgarea{ width:100%; flex:1 1 auto; display:flex; align-items:center; justify-content:center; min-height:0; }
+.fb-emoji{ font-size:min(58cqh,58cqw); line-height:1; display:inline-block; }
+.imgarea dotlottie-player, .imgarea img{ width:min(58cqh,58cqw); height:min(58cqh,58cqw); object-fit:contain; }
+.wordrow{
+  display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 10px;
+  background:#F7F8FA; border-top:1px solid #EEE;
+}
+.word{ font-size:clamp(1.1rem,4.4vmin,1.9rem); font-weight:800; font-family:var(--fnt); }
+.phonetic{ font-size:clamp(.75rem,2.4vmin,1.05rem); color:#888; font-family:var(--fnt); }
+
+.controls{
+  display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:10px;
+}
+.ctrl-btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px; border:none; border-radius:14px;
+  padding:clamp(8px,1.6vmin,14px) clamp(14px,3vmin,26px);
+  font-family:var(--fnt); font-size:clamp(14px,2.2vmin,20px); font-weight:700; cursor:pointer;
+  box-shadow:0 3px 0 rgba(0,0,0,0.15); transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  white-space:nowrap;
+}
+.ctrl-btn svg{ width:clamp(20px,4vw,28px); height:clamp(20px,4vw,28px); display:block; }
+.ctrl-btn:not(:disabled):hover{
+  transform:translateY(-2px);
+  filter:brightness(1.06) saturate(1.2);
+  box-shadow:0 5px 0 rgba(0,0,0,0.15), 0 8px 12px rgba(0,0,0,0.12);
+}
+.ctrl-btn:not(:disabled):active{
+  transform:translateY(3px) scale(.96);
+  box-shadow:none;
+  filter:brightness(.92);
+  transition:transform .05s ease, box-shadow .05s ease, filter .05s ease;
+}
+.replay{ background:#ffe08a; color:#7a5200; }
+.prev,.next{ background:#c9f2c0; color:#245c1a; }
+.prev:disabled,.next:disabled{ opacity:.35; cursor:default; }
+@media (orientation: portrait){
+  .controls{ flex-wrap:nowrap; width:100%; gap:clamp(4px,2vw,12px); }
+  .ctrl-btn{ flex:1 1 0; min-width:0; gap:clamp(2px,1.2vw,8px); padding:clamp(6px,1.8vw,14px) clamp(4px,2.4vw,22px); font-size:clamp(11px,3.1vw,20px); }
+  .ctrl-btn svg{ width:clamp(18px,5vw,24px); height:clamp(18px,5vw,24px); }
+}
+@keyframes popIn{ from{transform:scale(.4) rotate(-8deg); opacity:0} to{transform:scale(1) rotate(0); opacity:1} }
+</style>
+</head>
+<body>
+<div class="chart-wrap" id="chartWrap"><div class="chart" id="chart"></div></div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <button class="close-btn" id="closeBtn">✕</button>
+    <div class="dcard-row" id="dcardRow"></div>
+    <div class="controls">
+      <button class="ctrl-btn prev" id="prevBtn" aria-label="上一個">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="21" x2="12" y2="6"></line>
+          <polyline points="5,13 12,6 19,13"></polyline>
+        </svg>
+      </button>
+      <button class="ctrl-btn replay" id="replayBtn" aria-label="重播">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19.3,10 A8,8 0 1 0 19,17"></path>
+          <polyline points="20,4 20,11 13,11"></polyline>
+        </svg>
+      </button>
+      <button class="ctrl-btn next" id="nextBtn" aria-label="下一個">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="3" x2="12" y2="18"></line>
+          <polyline points="5,11 12,18 19,11"></polyline>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LETTERS = [
+  {L:'A',s:'a',word:'Apple',ph:'/ˈæpəl/',emoji:'🍎',vowel:true,ecode:'1f34e'},
+  {L:'B',s:'b',word:'Bee',ph:'/biː/',emoji:'🐝',vowel:false,ecode:'1f41d'},
+  {L:'C',s:'c',word:'Cat',ph:'/kæt/',emoji:'🐱',vowel:false,ecode:'1f431'},
+  {L:'D',s:'d',word:'Dog',ph:'/dɒɡ/',emoji:'🐶',vowel:false,ecode:'1f415'},
+  {L:'E',s:'e',word:'Ear',ph:'/ɪr/',emoji:'👂',vowel:true,ecode:'1f442'},
+  {L:'F',s:'f',word:'Fish',ph:'/fɪʃ/',emoji:'🐟',vowel:false,ecode:'1f41f'},
+  {L:'G',s:'g',word:'Grapes',ph:'/ɡreɪps/',emoji:'🍇',vowel:false,ecode:'1f347'},
+  {L:'H',s:'h',word:'Heart',ph:'/hɑːrt/',emoji:'❤️',vowel:false,ecode:'2764_fe0f'},
+  {L:'I',s:'i',word:'Ice cream',ph:'/aɪs kriːm/',emoji:'🍦',vowel:true,ecode:'1f366'},
+  {L:'J',s:'j',word:'Juice',ph:'/dʒuːs/',emoji:'🧃',vowel:false,ecode:'1f9c3'},
+  {L:'K',s:'k',word:'Kite',ph:'/kaɪt/',emoji:'🪁',vowel:false,ecode:'1fa81'},
+  {L:'L',s:'l',word:'Lion',ph:'/ˈlaɪən/',emoji:'🦁',vowel:false,ecode:'1f981'},
+  {L:'M',s:'m',word:'Milk',ph:'/mɪlk/',emoji:'🍼',vowel:false,ecode:'1f37c'},
+  {L:'N',s:'n',word:'Nose',ph:'/noʊz/',emoji:'👃',vowel:false,ecode:'1f443'},
+  {L:'O',s:'o',word:'Orange',ph:'/ˈɒrɪndʒ/',emoji:'🍊',vowel:true,ecode:'1f34a'},
+  {L:'P',s:'p',word:'Pig',ph:'/pɪɡ/',emoji:'🐷',vowel:false,ecode:'1f416'},
+  {L:'Q',s:'q',word:'Question',ph:'/ˈkwestʃən/',emoji:'❓',vowel:false,ecode:'2753'},
+  {L:'R',s:'r',word:'Rabbit',ph:'/ˈræbɪt/',emoji:'🐰',vowel:false,ecode:'1f407'},
+  {L:'S',s:'s',word:'Star',ph:'/stɑːr/',emoji:'⭐',vowel:false,ecode:'2b50'},
+  {L:'T',s:'t',word:'Tiger',ph:'/ˈtaɪɡər/',emoji:'🐯',vowel:false,ecode:'1f405'},
+  {L:'U',s:'u',word:'Umbrella',ph:'/ʌmˈbrelə/',emoji:'☂️',vowel:true,ecode:'2602_fe0f'},
+  {L:'V',s:'v',word:'Violin',ph:'/ˌvaɪəˈlɪn/',emoji:'🎻',vowel:false,ecode:'1f3bb'},
+  {L:'W',s:'w',word:'Whale',ph:'/weɪl/',emoji:'🐳',vowel:false,ecode:'1f433'},
+  {L:'X',s:'x',word:'Fox',ph:'/fɒks/',emoji:'🦊',vowel:false,ecode:'1f98a'},
+  {L:'Y',s:'y',word:'Yo-yo',ph:'/ˈjoʊjoʊ/',emoji:'🪀',vowel:false,ecode:'1fa80',hasAnim:false},
+  {L:'Z',s:'z',word:'Zebra',ph:'/ˈziːbrə/',emoji:'🦓',vowel:false,ecode:'1f993',hasAnim:false}
+];
+
+// keep every letter the same color for a consistent, calm look
+LETTERS.forEach(item => { item.type = 'm'; });
+
+const LETTER_PATHS = {
+  A:'M50,10 L8,130 M50,10 L92,130 M24,88 L76,88',
+  B:'M12,10 L12,130 M12,10 L50,10 Q80,10 80,37 Q80,64 50,64 L12,64 M12,64 L50,64 Q88,64 88,97 Q88,130 50,130 L12,130',
+  C:'M90,30 Q80,10 55,10 Q10,10 10,70 Q10,130 55,130 Q80,130 90,110',
+  D:'M12,10 L12,130 M12,10 Q88,10 88,70 Q88,130 12,130',
+  E:'M12,10 L12,130 M12,10 L88,10 M12,68 L80,68 M12,130 L88,130',
+  F:'M12,10 L12,130 M12,10 L88,10 M12,68 L80,68',
+  G:'M90,30 Q80,10 55,10 Q10,10 10,70 Q10,130 55,130 Q80,130 90,110 L90,70 L60,70',
+  H:'M12,10 L12,130 M88,10 L88,130 M12,70 L88,70',
+  I:'M25,10 L75,10 M50,10 L50,130 M25,130 L75,130',
+  J:'M80,10 L80,100 Q80,130 50,130 Q20,130 20,100',
+  K:'M12,10 L12,130 M78,10 L12,70 M12,64 L78,130',
+  L:'M12,10 L12,130 L80,130',
+  M:'M8,10 L8,130 M8,10 L50,80 L92,10 M92,10 L92,130',
+  N:'M12,10 L12,130 M12,10 L88,130 L88,10',
+  O:'M50,10 Q8,10 8,70 Q8,130 50,130 Q92,130 92,70 Q92,10 50,10',
+  P:'M12,10 L12,130 M12,10 L58,10 Q88,10 88,40 Q88,70 58,70 L12,70',
+  Q:'M50,10 Q8,10 8,70 Q8,130 50,130 Q92,130 92,70 Q92,10 50,10 M60,105 L92,130',
+  R:'M12,10 L12,130 M12,10 L58,10 Q88,10 88,40 Q88,70 58,70 L12,70 M40,70 L88,130',
+  S:'M86,40 Q86,10 50,10 Q14,10 14,36 Q14,60 50,66 Q88,72 88,100 Q88,130 50,130 Q12,130 12,96',
+  T:'M12,10 L88,10 M50,10 L50,130',
+  U:'M12,10 L12,95 Q12,130 50,130 Q88,130 88,95 L88,10',
+  V:'M8,10 L50,130 L92,10',
+  W:'M8,10 L26,130 L50,64 L74,130 L92,10',
+  X:'M12,10 L88,130 M88,10 L12,130',
+  Y:'M8,10 L50,70 M92,10 L50,70 M50,70 L50,130',
+  Z:'M12,10 L88,10 L12,130 L88,130'
+};
+
+const LETTER_PATHS_LOWER = {
+  //a:'M67.1,103.6 Q67.1,130.0 42.7,130.0 Q18.3,130.0 18.3,103.6 Q18.3,64.0 42.7,64.0 Q67.1,64.0 67.1,103.6 M67.1,64.0 L67.1,130.0',
+  a:'M76,78 Q70,64 50,64 Q20,64 20,97 Q20,130 50,130 Q70,130 76,116 M76,64 L76,122 Q78,128 80,130',
+  b:'M22,10.0 L22,130.0 M22,88 Q22,64 50,64 Q78,64 78,97 Q78,130 50,130 Q22,130 22,106',
+  c:'M78,78 Q70,64 53,64 Q22,64 22,97 Q22,130 53,130 Q70,130 78,116',
+  d:'M78,10 L78,130 M78,88 Q78,64 50,64 Q22,64 22,97 Q22,130 50,130 Q77,130 78,106',
+  e:'M22,97 L78,97 M78,97 Q78,64 50,64 Q22,64 22,97 Q22,130 50,130 Q70,130 78,116',
+  f:'M62,10 Q40,10 40,35 L40,130 M24,68 L60,68',
+  g:'M78,78 Q70,64 53,64 Q22,64 22,97 Q22,130 53,130 Q70,130 78,116 L78,64 M78,64 L78,150 Q78,170 53,170 Q28,170 22,150',
+  h:'M22,10 L22,130 M22,100 Q22,64 50,64 Q78,64 78,100 L78,130',
+  i:'M50,64 L50,130 M50,32 L50,33',
+  j:'M70,64 L70,140 Q70,160 50,160 Q30,160 30,140 M70,32 L70,33',
+  k:'M22,10 L22,130 M78,70 L22,97 M22,97 L78,130',
+  l:'M50,10 L50,130',
+  m:'M18,64 L18,130 M18,83 Q18,64 34,64 Q50,64 50,83 L50,130 M50,83 Q50,64 66,64 Q82,64 82,83 L82,130',
+  n:'M20,64 L20,130 M20,90 Q20,64 50,64 Q80,64 80,90 L80,130',
+  o:'M50,64.0 Q22,64.0 22,97.0 Q22,130.0 50,130.0 Q78,130.0 78,97.0 Q78,64.0 50,64.0',
+  p:'M22,64 L22,170 M22,88 Q22,64 50,64 Q78,64 78,97 Q78,130 50,130 Q22,130 22,106',
+  q:'M78,78 Q70,64 53,64 Q22,64 22,97 Q22,130 53,130 Q70,130 78,116 M78,64 L78,170',
+  r:'M22,64 L22,130 M22,90 Q22,64 50,64 Q70,64 78,74',
+  s:'M78,80 Q76,64 50,64 Q20,64 20,80 Q20,96 50,96 Q80,96 80,113 Q80,130 50,130 Q22,130 20,113',
+  t:'M48,32 L48,110 Q48,130 68,128 M28,68 L68,68',
+  u:'M20,64 L20,104 Q20,130 50,130 Q80,130 80,104 L80,64 M80,64 L80,130',
+  v:'M20,64 L50,130 L80,64',
+  w:'M12,64 L30,130 L50,64 L70,130 L88,64',
+  x:'M22,64 L78,130 M78,64 L22,130',
+  y:'M20,70 L50,130 M80,70 L40,160 Q35,170, 25,170 L20,170',
+  z:'M22,64 L78,64 L22,130 L78,130'
+};
+
+const chartEl = document.getElementById('chart');
+const chartWrapEl = document.getElementById('chartWrap');
+
+function loadButtonIcon(item, animEl) {
+  const svgUrl = `https://raw.githubusercontent.com/googlefonts/noto-emoji/main/svg/emoji_u${item.ecode}.svg`;
+  animEl.innerHTML = `<img src="${svgUrl}" alt="${item.word}" onerror="this.parentElement.innerHTML='<span style=\\'font-size:1.6em\\'>${item.emoji}</span>'" />`;
+}
+
+function renderStaticPopupIcon(item, containerEl) {
+  const svgUrl = `https://raw.githubusercontent.com/googlefonts/noto-emoji/main/svg/emoji_u${item.ecode}.svg`;
+  containerEl.innerHTML = `<img src="${svgUrl}" alt="${item.word}" onerror="this.parentElement.innerHTML='<span class=\\'fb-emoji\\'>${item.emoji}</span>'" />`;
+}
+
+function loadPopupIcon(item, containerEl, myGen) {
+  // Letters known to have no animated version: show the same static image as the main grid directly.
+  if (item.hasAnim === false) {
+    renderStaticPopupIcon(item, containerEl);
+    return;
+  }
+
+  const lottieUrl = `https://fonts.gstatic.com/s/e/notoemoji/latest/${item.ecode}/lottie.json`;
+  containerEl.innerHTML = `<dotlottie-player src="${lottieUrl}" background="transparent" speed="1" loop autoplay></dotlottie-player>`;
+  const player = containerEl.querySelector('dotlottie-player');
+  if (!player) { renderStaticPopupIcon(item, containerEl); return; }
+
+  player.addEventListener('error', () => {
+    if (myGen !== animGen) return;
+    renderStaticPopupIcon(item, containerEl);
+  }, { once: true });
+}
+
+LETTERS.forEach((item, idx) => {
+  const btn = document.createElement('button');
+  btn.className = `bc ${item.type}`;
+  btn.type = 'button';
+  btn.title = `${item.L}${item.s} — ${item.word}`;
+  btn.addEventListener('click', () => openLetter(idx));
+
+  const animEl = document.createElement('div');
+  animEl.className = 'bc-anim';
+  animEl.innerHTML = `<span style="font-size:1.6em">${item.emoji}</span>`;
+
+  const letterEl = document.createElement('div');
+  letterEl.className = 'bc-letter';
+  letterEl.textContent = item.L;
+
+  btn.appendChild(animEl);
+  btn.appendChild(letterEl);
+  chartEl.appendChild(btn);
+
+  loadButtonIcon(item, animEl);
+});
+
+function layoutChart() {
+  const n = LETTERS.length;
+  const availW = chartWrapEl.clientWidth;
+  const availH = chartWrapEl.clientHeight;
+  if (availW <= 0 || availH <= 0) return;
+
+  const gap = Math.max(6, Math.min(16, availW * 0.012));
+
+  let best = { cols: n, size: 0 };
+  for (let cols = 1; cols <= n; cols++) {
+    const rows = Math.ceil(n / cols);
+    const sizeW = (availW - gap * (cols - 1)) / cols;
+    const sizeH = (availH - gap * (rows - 1)) / rows;
+    const size = Math.min(sizeW, sizeH);
+    if (size > best.size) best = { cols, size };
+  }
+
+  const size = Math.max(40, Math.floor(best.size));
+  chartEl.style.gridTemplateColumns = `repeat(${best.cols}, ${size}px)`;
+  chartEl.style.gap = `${gap}px`;
+  document.querySelectorAll('.bc').forEach(btn => {
+    btn.style.width = size + 'px';
+    btn.style.height = size + 'px';
+    btn.style.fontSize = Math.max(11, size * 0.24) + 'px';
+  });
+}
+
+window.addEventListener('resize', () => requestAnimationFrame(layoutChart));
+window.addEventListener('orientationchange', () => setTimeout(layoutChart, 100));
+layoutChart();
+
+const overlay = document.getElementById('overlay');
+const closeBtn = document.getElementById('closeBtn');
+const replayBtn = document.getElementById('replayBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+let currentIndex = 0;
+let currentItem = null;
+let animGen = 0;
+
+function openLetter(idx) {
+  playIndex(idx);
+  overlay.classList.add('show');
+}
+function closeModal() {
+  overlay.classList.remove('show');
+  animGen++;
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+}
+closeBtn.addEventListener('click', closeModal);
+overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+replayBtn.addEventListener('click', () => playIndex(currentIndex));
+prevBtn.addEventListener('click', () => { if (currentIndex > 0) playIndex(currentIndex - 1); });
+nextBtn.addEventListener('click', () => { if (currentIndex < LETTERS.length - 1) playIndex(currentIndex + 1); });
+
+function playIndex(idx) {
+  currentIndex = idx;
+  const item = LETTERS[idx];
+  currentItem = item;
+  render(item);
+  speak(item);
+  prevBtn.disabled = (idx === 0);
+  nextBtn.disabled = (idx === LETTERS.length - 1);
+}
+
+function makeUtter(txt) {
+  const voices = window.speechSynthesis.getVoices();
+  const en = voices.find(v => /en.?US/i.test(v.lang)) || voices.find(v => /en/i.test(v.lang));
+  const u = new SpeechSynthesisUtterance(txt);
+  u.lang = 'en-US'; u.rate = 0.85;
+  if (en) u.voice = en;
+  return u;
+}
+function speak(item) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u1 = makeUtter(item.L);
+  const u2 = makeUtter(item.word);
+  u1.onend = () => setTimeout(() => window.speechSynthesis.speak(u2), 280);
+  window.speechSynthesis.speak(u1);
+}
+function speakLetter(item) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(makeUtter(item.L));
+}
+function speakWord(item) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(makeUtter(item.word));
+}
+
+function typeColor(item) {
+  return item.type === 'i' ? 'var(--ini)' : item.type === 'm' ? 'var(--med)' : item.type === 'f' ? 'var(--fin)' : 'var(--vow)';
+}
+
+function splitStrokes(d) {
+  return d.split(/\s(?=M)/).map(s => s.trim()).filter(Boolean);
+}
+
+function render(item) {
+  const row = document.getElementById('dcardRow');
+  const color = typeColor(item);
+  const dU = LETTER_PATHS[item.L] || '';
+  const dL = LETTER_PATHS_LOWER[item.s] || '';
+  row.innerHTML = `
+    <div class="sbox" title="重播筆劃動畫" style="color:${color}">
+      <div class="letter-stage">
+        <div class="slot-upper">
+          <svg viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet">
+            <path class="guide" d="${dU}"></path>
+            <g id="strokesUpper"></g>
+          </svg>
+        </div>
+        <div class="slot-lower">
+          <svg viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet">
+            <path class="guide" d="${dL}"></path>
+            <g id="strokesLower"></g>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div class="imgbox" title="念出這個單字">
+      <div class="imgarea" id="ea"><span class="fb-emoji">${item.emoji}</span></div>
+      <div class="wordrow">
+        <div class="word">${item.word}</div>
+        <div class="phonetic">${item.ph}</div>
+      </div>
+    </div>`;
+
+  const sbox = row.querySelector('.sbox');
+  sbox.addEventListener('click', () => { animateLetter(); speakLetter(item); });
+  const imgbox = row.querySelector('.imgbox');
+  imgbox.addEventListener('click', () => speakWord(item));
+
+  animateLetter();
+
+  const eaEl = document.getElementById('ea');
+  loadPopupIcon(item, eaEl, animGen);
+}
+
+function buildStrokeGroup(groupEl, d) {
+  groupEl.innerHTML = '';
+  const strokes = splitStrokes(d);
+  return strokes.map(strokeD => {
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('class', 'draw');
+    path.setAttribute('d', strokeD);
+    groupEl.appendChild(path);
+    return path;
+  });
+}
+
+function primePath(path) {
+  const length = path.getTotalLength();
+  path.style.transition = 'none';
+  path.style.strokeDasharray = length;
+  path.style.strokeDashoffset = length;
+  path.getBoundingClientRect(); // force reflow
+  return length;
+}
+
+function drawPath(path, myGen) {
+  const length = primePath(path);
+  return new Promise(resolve => {
+    const duration = Math.min(1.1, Math.max(0.45, length / 200));
+    requestAnimationFrame(() => {
+      if (myGen !== animGen) return resolve();
+      path.style.transition = `stroke-dashoffset ${duration}s ease-in-out`;
+      path.style.strokeDashoffset = '0';
+    });
+    setTimeout(() => resolve(), duration * 1000 + 90);
+  });
+}
+
+async function drawStrokesInOrder(paths, myGen) {
+  for (const path of paths) {
+    if (myGen !== animGen) return;
+    await drawPath(path, myGen);
+  }
+}
+
+async function animateLetter() {
+  const myGen = ++animGen;
+  const upperGroup = document.getElementById('strokesUpper');
+  const lowerGroup = document.getElementById('strokesLower');
+  if (!upperGroup || !lowerGroup) return;
+
+  const dU = LETTER_PATHS[currentItem.L] || '';
+  const dL = LETTER_PATHS_LOWER[currentItem.s] || '';
+
+  const upperPaths = buildStrokeGroup(upperGroup, dU);
+  const lowerPaths = buildStrokeGroup(lowerGroup, dL);
+  upperPaths.forEach(p => primePath(p));
+  lowerPaths.forEach(p => primePath(p));
+
+  await drawStrokesInOrder(upperPaths, myGen);
+  if (myGen !== animGen) return;
+  await drawStrokesInOrder(lowerPaths, myGen);
+}
+
+if (window.speechSynthesis) {
+  window.speechSynthesis.getVoices();
+  if (window.speechSynthesis.onvoiceschanged !== undefined)
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+</script>
+</body>
+</html>
