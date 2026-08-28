@@ -116,10 +116,11 @@ body{
   backdrop-filter:blur(6px);
   -webkit-backdrop-filter:blur(6px);
   border-radius:28px;
-  padding:clamp(52px,9vmin,76px) clamp(18px,4vmin,48px) clamp(20px,4vmin,48px);
+  padding:clamp(52px,9vmin,76px) clamp(18px,4vmin,48px) clamp(28px,5vmin,48px);
   max-width:min(94vw,1200px);
   max-height:92vh;
-  overflow-y:auto;
+  max-height:92dvh;
+  overflow:hidden;
   text-align:center;
   box-shadow:0 20px 50px rgba(0,0,0,0.35);
   position:relative;
@@ -145,10 +146,30 @@ body{
 }
 @media (orientation: landscape){
   .dcard-row{ flex-direction:row; align-items:stretch; }
-  :root{ --dbox: clamp(140px, min(30vw,58vh), 380px); }
+  :root{ --dbox: clamp(100px, min(30vw,55vh), 380px); }
 }
 @media (orientation: portrait){
-  :root{ --dbox: clamp(110px, min(60vw, calc((92vh - 220px) / 2)), 340px); }
+  :root{ --dbox: clamp(95px, min(60vw, calc((92vh - 220px) / 2)), 340px); }
+}
+/* dvh reflects the browser's actual visible area (excludes address/nav bars),
+   so it prevents the popup from being sized larger than what's really on screen */
+@supports (height: 100dvh){
+  .modal{ max-height:94dvh; }
+  @media (orientation: landscape){
+    :root{ --dbox: clamp(100px, min(30vw, calc(94dvh - 185px)), 380px); }
+    .modal{ padding-top:clamp(36px,8dvh,76px); padding-bottom:clamp(14px,3.5dvh,48px); }
+  }
+  @media (orientation: portrait){
+    :root{ --dbox: clamp(95px, min(60vw, calc((94dvh - 235px) / 2)), 340px); }
+  }
+  @media (orientation: landscape) and (max-height: 480px){
+    .modal{ padding:clamp(30px,7dvh,48px) clamp(12px,3vw,24px) clamp(14px,3.5dvh,20px); }
+    .close-btn{ width:28px; height:28px; font-size:13px; top:6px; right:8px; }
+    .dcard-row{ gap:clamp(10px,2vw,20px); margin:6px 0 8px; }
+    .controls{ gap:8px; margin-top:6px; }
+    .ctrl-btn{ padding:clamp(5px,1.4dvh,10px) clamp(8px,2vw,16px); font-size:clamp(11px,2.4dvh,15px); }
+    .ctrl-btn svg{ width:clamp(15px,3dvh,20px); height:clamp(15px,3dvh,20px); }
+  }
 }
 .sbox{
   width:var(--dbox); height:var(--dbox);
@@ -196,11 +217,11 @@ body{
 .fb-emoji{ font-size:min(58cqh,58cqw); line-height:1; display:inline-block; }
 .imgarea dotlottie-player, .imgarea img{ width:min(58cqh,58cqw); height:min(58cqh,58cqw); object-fit:contain; }
 .wordrow{
-  display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 10px;
+  display:flex; flex-direction:column; align-items:center; gap:4px; padding:clamp(4px,4cqh,10px) 10px;
   background:#F7F8FA; border-top:1px solid #EEE;
 }
-.word{ font-size:clamp(1.1rem,4.4vmin,1.9rem); font-weight:800; font-family:var(--fnt); }
-.phonetic{ font-size:clamp(.75rem,2.4vmin,1.05rem); color:#888; font-family:var(--fnt); }
+.word{ font-size:clamp(.85rem,13cqh,1.9rem); font-weight:800; font-family:var(--fnt); }
+.phonetic{ font-size:clamp(.6rem,8cqh,1.05rem); color:#888; font-family:var(--fnt); }
 
 .controls{
   display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:10px;
@@ -463,6 +484,13 @@ closeBtn.addEventListener('click', closeModal);
 overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
+function refitPopupIfOpen() { if (overlay.classList.contains('show')) fitPopup(); }
+window.addEventListener('resize', () => requestAnimationFrame(refitPopupIfOpen));
+window.addEventListener('orientationchange', () => setTimeout(refitPopupIfOpen, 150));
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', () => requestAnimationFrame(refitPopupIfOpen));
+}
+
 replayBtn.addEventListener('click', () => playIndex(currentIndex));
 prevBtn.addEventListener('click', () => { if (currentIndex > 0) playIndex(currentIndex - 1); });
 nextBtn.addEventListener('click', () => { if (currentIndex < LETTERS.length - 1) playIndex(currentIndex + 1); });
@@ -548,9 +576,74 @@ function render(item) {
   imgbox.addEventListener('click', () => speakWord(item));
 
   animateLetter();
+  fitPopup();
 
   const eaEl = document.getElementById('ea');
   loadPopupIcon(item, eaEl, animGen);
+}
+
+// Sizes the popup's two boxes (letter-trace + image/word) so the whole modal
+// always fits inside the browser's actually-visible area, on any screen size
+// or orientation — no clipping, and no scrollbar ever needed.
+function fitPopup() {
+  const modal = document.querySelector('.modal');
+  const row = document.getElementById('dcardRow');
+  if (!modal || !row) return;
+  const boxes = row.querySelectorAll('.sbox, .imgbox');
+  if (!boxes.length) return;
+
+  // Reset to CSS defaults first so measurements reflect natural sizing.
+  boxes.forEach(b => { b.style.width = ''; b.style.height = ''; });
+  modal.style.maxHeight = '';
+  modal.style.maxWidth = '';
+
+  const vv = window.visualViewport;
+  const viewportH = Math.round(vv ? vv.height : window.innerHeight);
+  const viewportW = Math.round(vv ? vv.width : window.innerWidth);
+  const overlayPadding = 32; // matches .overlay{ padding:16px } on each side
+
+  const maxModalH = Math.max(160, viewportH - overlayPadding);
+  const maxModalW = Math.min(Math.max(200, viewportW - overlayPadding), 1200);
+
+  // Cap the modal itself to what's actually visible on screen right now.
+  modal.style.maxHeight = maxModalH + 'px';
+  modal.style.maxWidth = maxModalW + 'px';
+
+  const cs = getComputedStyle(modal);
+  const padTop = parseFloat(cs.paddingTop) || 0;
+  const padBottom = parseFloat(cs.paddingBottom) || 0;
+  const padLeft = parseFloat(cs.paddingLeft) || 0;
+  const padRight = parseFloat(cs.paddingRight) || 0;
+
+  const controls = modal.querySelector('.controls');
+  const controlsH = controls ? controls.getBoundingClientRect().height : 0;
+  const controlsMT = controls ? (parseFloat(getComputedStyle(controls).marginTop) || 0) : 0;
+
+  const rowCS = getComputedStyle(row);
+  const rowMT = parseFloat(rowCS.marginTop) || 0;
+  const rowMB = parseFloat(rowCS.marginBottom) || 0;
+  const rowGap = parseFloat(rowCS.rowGap || rowCS.gap) || 0;
+  const colGap = parseFloat(rowCS.columnGap || rowCS.gap) || 0;
+
+  // Extra breathing room below the controls so they never sit flush against
+  // the modal's bottom edge, even though the boxes are sized to fit tightly.
+  const bottomSafety = 14;
+
+  const availContentH = maxModalH - padTop - padBottom - rowMT - rowMB - controlsH - controlsMT - bottomSafety;
+  const availContentW = maxModalW - padLeft - padRight;
+
+  const isRow = rowCS.flexDirection === 'row';
+  let size;
+  if (isRow) {
+    const byWidth = (availContentW - colGap) / 2;
+    size = Math.min(byWidth, availContentH, 380);
+  } else {
+    const byHeight = (availContentH - rowGap) / 2;
+    size = Math.min(byHeight, availContentW, 340);
+  }
+  size = Math.max(80, Math.floor(size));
+
+  boxes.forEach(b => { b.style.width = size + 'px'; b.style.height = size + 'px'; });
 }
 
 function buildStrokeGroup(groupEl, d) {
