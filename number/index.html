@@ -65,13 +65,15 @@
 
   /* modal */
   .overlay{
-    position:fixed; inset:0;
+    position:fixed;
+    top:0; left:0; right:0; bottom:0;
+    inset:0;
     background:rgba(40,30,20,0.55);
     display:none;
     align-items:center;
     justify-content:center;
     z-index:50;
-    padding:16px;
+    padding:clamp(8px,2vh,16px) clamp(8px,3vw,16px);
   }
   .overlay.show{ display:flex; }
   .modal{
@@ -79,11 +81,17 @@
     backdrop-filter:blur(4px);
     -webkit-backdrop-filter:blur(6px);
     border-radius:28px;
-    padding:clamp(16px,3.5vw,30px) clamp(18px,4.5vw,32px) clamp(20px,4.5vw,32px);
+    --modal-pad-y:clamp(10px,2.5vh,20px);
+    --modal-pad-x:clamp(18px,4.5vw,32px);
+    padding:var(--modal-pad-y) var(--modal-pad-x) clamp(14px,2.5vh,24px);
+    width:auto;
+    width:fit-content;
+    min-width:min(92vw,280px);
     max-width:min(92vw,720px);
-    width:100%;
     max-height:92vh;
-    overflow-y:auto;
+    max-height:min(92vh,92dvh);
+    display:flex;
+    flex-direction:column;
     text-align:center;
     box-shadow:0 20px 50px rgba(0,0,0,0.35);
     position:relative;
@@ -93,14 +101,29 @@
     from{ transform:scale(.85); opacity:0; }
     to{ transform:scale(1); opacity:1; }
   }
+  .modal-header{
+    display:flex;
+    justify-content:flex-end;
+    flex-shrink:0;
+    /* 先用負邊距抵銷 modal 上/右內距的差異，再用同一個 clamp 值重新補上，
+       讓關閉按鈕與 modal 上邊、右邊保持相同距離 */
+    margin:calc(-1 * var(--modal-pad-y)) calc(-1 * var(--modal-pad-x)) 0 0;
+    padding:clamp(10px,2.4vh,20px) clamp(10px,2.4vh,20px) 0 0;
+  }
+  .modal-scroll{
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding:0 clamp(8px,2vw,16px);
+  }
   .close-btn{
-    position:absolute;
-    top:12px; right:14px;
     background:#ffdede;
     border:none;
     color:#a33;
-    width:clamp(32px,6vw,40px);
-    height:clamp(32px,6vw,40px);
+    width:clamp(30px,6vw,40px);
+    height:clamp(30px,6vw,40px);
+    flex-shrink:0;
     border-radius:50%;
     font-size:clamp(16px,3vw,20px);
     font-weight:800;
@@ -115,10 +138,10 @@
   .close-btn:active{ transform:scale(.95); box-shadow:none; }
   .digits-row{
     display:inline-flex;
-    margin:10px 0 16px;
+    margin:clamp(4px,1.5vh,10px) 0 clamp(6px,2vh,16px);
     background:rgba(245,240,230,0.7);
     border-radius:22px;
-    padding:clamp(10px,3vw,20px) clamp(14px,4vw,26px);
+    padding:clamp(8px,min(3vw,2.5vh),20px) clamp(14px,4vw,26px);
     box-shadow:inset 0 0 0 3px #e3d8c4;
     max-width:100%;
     cursor:pointer;
@@ -144,10 +167,16 @@
     pointer-events:none;
   }
   .digit-box{
-    width:clamp(70px,16vw,150px);
-    max-width:32vw;
+    --dw:clamp(56px,min(16vw,20vh),150px);
+    width:var(--dw);
+    max-width:30vw;
     position:relative;
     z-index:1;
+  }
+  .digit-box + .digit-box{
+    /* 用「自身寬度的比例」取代固定像素，讓不同螢幕尺寸下的重疊比例一致，
+       避免橫向/直向畫面數字間距忽大忽小，甚至連在一起 */
+    margin-left:calc(var(--dw) * -0.16);
   }
   .digit-box svg{ width:100%; height:auto; display:block; }
   .digit-gray{
@@ -169,7 +198,8 @@
     justify-content:center;
     gap:12px;
     flex-wrap:wrap;
-    margin-top:10px;
+    margin-top:clamp(6px,1.5vh,10px);
+    flex-shrink:0;
   }
   .ctrl-btn{
     display:inline-flex;
@@ -211,8 +241,12 @@
 
 <div class="overlay" id="overlay">
   <div class="modal">
-    <button class="close-btn" id="closeBtn">✕</button>
-    <div class="digits-row" id="digitsRow"></div>
+    <div class="modal-header">
+      <button class="close-btn" id="closeBtn">✕</button>
+    </div>
+    <div class="modal-scroll">
+      <div class="digits-row" id="digitsRow"></div>
+    </div>
     <div class="controls">
       <button class="ctrl-btn prev" id="prevBtn" aria-label="上一個">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
@@ -363,7 +397,6 @@ function playNumber(n){
     const { svg, pathEls } = buildDigitSVG(d);
     const box = document.createElement('div');
     box.className = 'digit-box';
-    box.style.marginLeft = (idx === 0) ? '0' : '-20px';
     box.appendChild(svg);
     digitsInner.appendChild(box);
     allPathGroups.push(pathEls);
