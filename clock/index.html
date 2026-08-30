@@ -118,17 +118,15 @@
     .panels {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: 3fr 1fr;
+      grid-template-rows: 1fr;
       grid-template-areas:
-        "clock digital"
-        "clock speech";
+        "clock digital";
       gap: clamp(10px, 3vmin, 20px);
       flex: 1;
       min-height: 0;
     }
     #box-clock   { grid-area: clock;   display: flex; flex-direction: column; justify-content: center; min-height: 0; }
     #box-digital { grid-area: digital; display: flex; flex-direction: column; justify-content: center; min-height: 0; }
-    #box-speech  { grid-area: speech;  margin-top: 0; min-height: 0; display: flex; align-items: center; justify-content: center; }
     .panel {
       padding: clamp(8px, 3vmin, 20px);
     }
@@ -146,43 +144,35 @@
       max-height: min(55vw, 88dvh);
     }
     .digit-box {
-      width: clamp(46px, 20vmin, 170px);
-      height: clamp(42px, 20vmin, 160px);
-      font-size: clamp(1.3rem, 10vmin, 5.5rem);
+      width: clamp(50px, var(--dt-box-w, 22vmin), 260px);
+      height: clamp(46px, var(--dt-box-h, 19vmin), 240px);
+      font-size: clamp(1.4rem, var(--dt-box-font, 11vmin), 8rem);
     }
     .colon {
-      font-size: clamp(1.2rem, 9vmin, 5rem);
+      font-size: clamp(1.3rem, var(--dt-colon-font, 10vmin), 7.5rem);
       height: auto;
-      margin-top: 0;
+      padding-top: 0;
       padding-bottom: 0;
-      padding-top: clamp(4px, 3vmin, 20px);
+      margin-top: clamp(-28px, calc(var(--dt-colon-pad, 2.4vmin) * -1), -4px);
       align-self: center;
     }
     .ctrl-btn {
-      width: clamp(18px, 7vmin, 52px);
-      height: clamp(18px, 7vmin, 52px);
-      font-size: clamp(0.55rem, 2.8vmin, 1.4rem);
+      width: clamp(20px, var(--dt-ctrl, 6.5vmin), 78px);
+      height: clamp(20px, var(--dt-ctrl, 6.5vmin), 78px);
+      font-size: clamp(0.6rem, var(--dt-ctrl-font, 2.6vmin), 2rem);
     }
     .digital-display {
-      gap: clamp(3px, 2vmin, 8px);
-      margin-bottom: clamp(3px, 2vmin, 16px);
+      gap: clamp(4px, var(--dt-gap, 1.8vmin), 16px);
+      margin-bottom: clamp(4px, var(--dt-gap, 1.8vmin), 26px);
     }
-    .min-arrows { gap: clamp(3px, 1.5vmin, 6px); }
-    .digit-col  { gap: clamp(3px, 1.5vmin, 6px); }
+    .min-arrows { gap: clamp(4px, var(--dt-small-gap, 1.5vmin), 12px); }
+    .digit-col  { gap: clamp(4px, var(--dt-small-gap, 1.5vmin), 12px); }
     .time-sentence {
-      padding: clamp(6px, 1.6vmin, 20px) clamp(10px, 2.5vmin, 20px);
+      padding: clamp(2px, 0.8vmin, 10px) clamp(12px, 3.2vmin, 30px);
       width: 100%;
     }
     .time-sentence p {
-      gap: clamp(6px, 1.5vmin, 10px);
-    }
-    .time-sentence .big-time {
-      font-size: clamp(0.95rem, 3.4vmin, 2.8rem);
-    }
-    .speak-icon-btn {
-      width: clamp(24px, 5.5vmin, 44px);
-      height: clamp(24px, 5.5vmin, 44px);
-      font-size: clamp(0.7rem, 2.6vmin, 1.1rem);
+      gap: clamp(8px, 2vmin, 16px);
     }
   }
 
@@ -204,9 +194,6 @@
     #box-digital {
       /* 維持預設 block */
     }
-    #box-speech {
-      margin-top: 0;
-    }
     .clock-wrap {
       margin-bottom: 0;
     }
@@ -221,9 +208,9 @@
     }
     .colon {
       font-size: clamp(2rem, 9vw, 3.5rem);
-      margin-top: 0;
+      padding-top: 0;
       padding-bottom: 0;
-      padding-top: 20px;
+      margin-top: -8px;
       height: auto;
       align-self: center;
     }
@@ -234,15 +221,7 @@
     }
     .time-sentence {
       margin-top: 0;
-      padding: 10px 16px;
-    }
-    .time-sentence .big-time {
-      font-size: clamp(1.1rem, 6vw, 2rem);
-    }
-    .speak-icon-btn {
-      width: 1.9em;
-      height: 1.9em;
-      font-size: 1rem;
+      padding: 2px 16px;
     }
     .panel {
       padding: 14px 16px;
@@ -270,6 +249,21 @@
   }
   .panel-digital { border-color: var(--panel-color); }
   .panel-clock   { border-color: var(--panel-color); }
+
+  /* 數字時間發音區：以自身實際寬度為基準（container query），
+     讓喇叭圖示與中文字能在空間足夠寬時自動放大 */
+  #box-digital {
+    container-type: inline-size;
+    container-name: digital-speech;
+  }
+  .time-sentence .big-time {
+    font-size: clamp(1.1rem, 9cqw, 4rem);
+  }
+  .speak-icon-btn {
+    width: clamp(28px, 13cqw, 60px);
+    height: clamp(28px, 13cqw, 60px);
+    font-size: clamp(0.8rem, 6cqw, 1.5rem);
+  }
 
   .panel-label {
     font-family: 'Baloo 2', cursive;
@@ -452,28 +446,22 @@
 
   /* Time sentence */
   .time-sentence {
-    background: white;
-    border-radius: 28px;
-    padding: 20px 20px;
-    box-shadow: 0 8px 32px var(--shadow), 0 2px 8px rgba(0,0,0,0.06);
-    border: 3px solid var(--panel-color);
+    padding: 4px 20px;
     position: relative;
     text-align: center;
-    margin-top: 24px;
-    transition: transform 0.12s, box-shadow 0.12s;
+    margin-top: 6px;
+    transition: transform 0.12s;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
   .time-sentence:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 36px var(--shadow), 0 4px 12px rgba(34,197,94,0.2);
   }
   .time-sentence:active {
     transform: scale(0.97);
   }
-  .time-sentence.speaking {
-    box-shadow: 0 0 0 4px rgba(34,197,94,0.3), 0 8px 32px var(--shadow);
-    border-color: #16a34a;
+  .time-sentence.speaking .big-time {
+    color: #16a34a;
   }
   .time-sentence p {
     font-family: 'Baloo 2', cursive;
@@ -481,7 +469,6 @@
     color: #15803d;
   }
   .time-sentence .big-time {
-    font-size: clamp(1.6rem, 5vw, 2.2rem);
     color: #15803d;
   }
   .time-sentence p {
@@ -497,10 +484,7 @@
     background: var(--panel-light);
     color: var(--panel-dark);
     border-radius: 50%;
-    width: 2.2em;
-    height: 2.2em;
     flex-shrink: 0;
-    font-size: 1.1rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -584,7 +568,7 @@
 
     </div>
 
-    <!-- 數字時間 -->
+    <!-- 數字時間發音 -->
     <div class="panel panel-digital" id="box-digital">
 
       <div class="digital-display">
@@ -617,14 +601,14 @@
 
       </div>
 
-    </div>
+      <!-- 發音（併入數字時間區） -->
+      <div class="time-sentence" id="box-speech">
+        <p>
+          <button class="speak-icon-btn" id="speak-btn" aria-label="播放發音" type="button">🔊</button>
+          <span class="big-time" id="time-text">十二點整</span>
+        </p>
+      </div>
 
-    <!-- 發音 -->
-    <div class="time-sentence" id="box-speech">
-      <p>
-        <button class="speak-icon-btn" id="speak-btn" aria-label="播放發音" type="button">🔊</button>
-        <span class="big-time" id="time-text">十二點整</span>
-      </p>
     </div>
 
   </div>
@@ -645,6 +629,30 @@ const dragHZ  = document.getElementById('drag-hour-zone');
 const dragMZ  = document.getElementById('drag-min-zone');
 const svg     = document.getElementById('clock-svg');
 const timeText = document.getElementById('time-text');
+
+// ── 依「數字時間發音區」實際寬高調整數字時間大小 ──
+// （避免用 vmin/vw 推算，因手機瀏覽器網址列等造成視窗高度與
+//   實際可用面板大小不一致，導致數字被撐得過大或過小）
+const boxDigital = document.getElementById('box-digital');
+if (boxDigital && 'ResizeObserver' in window) {
+  const updateDigitalScale = () => {
+    const w = boxDigital.clientWidth;
+    const h = boxDigital.clientHeight;
+    const dtMin = Math.max(0, Math.min(w, h));
+    const set = (name, ratio) => boxDigital.style.setProperty(name, (dtMin * ratio) + 'px');
+    set('--dt-box-w',     0.34);
+    set('--dt-box-h',     0.30);
+    set('--dt-box-font',  0.186);
+    set('--dt-colon-font',0.17);
+    set('--dt-colon-pad', 0.04);
+    set('--dt-ctrl',      0.105);
+    set('--dt-ctrl-font', 0.042);
+    set('--dt-gap',       0.03);
+    set('--dt-small-gap', 0.025);
+  };
+  new ResizeObserver(updateDigitalScale).observe(boxDigital);
+  updateDigitalScale();
+}
 
 // ── Build clock face ──
 (function buildFace() {
