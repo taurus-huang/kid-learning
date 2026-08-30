@@ -24,6 +24,7 @@ body{
   background:linear-gradient(160deg,#fff6e5,#e8f7ff 60%,#f0ffe8);
   min-height:100vh;
   padding:20px;
+  overflow-x:hidden;
   -webkit-tap-highlight-color: transparent;
 }
 .chart-wrap{
@@ -88,7 +89,7 @@ body{
     display:flex;
     align-items:center;
     justify-content:center;
-    overflow-x:auto;
+    overflow-x:hidden;
     overflow-y:hidden;
   }
   .chart{
@@ -109,9 +110,9 @@ body{
     flex:0 0 auto;
   }
   .bc{
-    width:clamp(16px, min(calc((100vw - 160px) / 11), calc((100dvh - 140px) / 4)), 140px);
-    height:clamp(16px, min(calc((100vw - 160px) / 11), calc((100dvh - 140px) / 4)), 140px);
-    font-size:clamp(9px, min(calc((100vw - 160px) / 11 * 0.42), calc((100dvh - 140px) / 4 * 0.42)), 60px);
+    width:clamp(16px, min(calc((100vw - 152px) / 11), calc((100dvh - 84px) / 4)), 140px);
+    height:clamp(16px, min(calc((100vw - 152px) / 11), calc((100dvh - 84px) / 4)), 140px);
+    font-size:clamp(9px, min(calc((100vw - 152px) / 11 * 0.42), calc((100dvh - 84px) / 4 * 0.42)), 60px);
   }
 }
 .bc.i{background:var(--ini-bg);color:var(--ini);border-color:var(--ini-br)}
