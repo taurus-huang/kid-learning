@@ -45,11 +45,23 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  html, body {
+    height: 100%;
+  }
+
   body {
     font-family: 'Nunito', sans-serif;
     background: linear-gradient(180deg, #b8e4ff 0%, #d4f1f9 40%, #e8f4fd 70%, #c8f0c0 100%);
     min-height: 100vh;
-    overflow-x: hidden;
+    overflow: hidden; /* 一般情況下：畫面應完整容納所有內容，不出現 scroll bar */
+  }
+
+  /* 只有在畫面真的非常小（超出可縮放下限）時，才允許捲動，
+     以避免內容被截斷到完全看不到、無法操作 */
+  @media (max-height: 300px), (max-width: 260px) {
+    html, body {
+      overflow: auto;
+    }
   }
 
   /* Decorative background */
@@ -176,58 +188,87 @@
     }
   }
 
-  /* ── 直式：三框縱排，間距與邊界全部相等 ── */
+  /* ── 直式：時鐘框在上、數字時間發音框在下，縱向平分空間 ──
+     與橫式相同的原則：所有尺寸改用 vmin 為縮放基準，兩個框以 flex:1
+     平分可用高度，確保無論裝置寬高比例如何，兩框都能完整同時顯示，
+     不會出現 scroll bar。 */
   @media (orientation: portrait) {
     .page-wrapper {
-      padding: 0 24px;
-      justify-content: space-evenly;   /* 自動分配所有垂直空間 */
+      padding: clamp(8px, 2.4vmin, 20px) clamp(10px, 4vmin, 24px);
     }
     .panels {
-      /* 展平為透明容器，三個框直接成為 page-wrapper 的 flex 子項 */
-      display: contents;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(8px, 2.4vmin, 20px);
+      flex: 1;
+      min-height: 0;
     }
     #box-clock {
+      flex: 1;
+      min-height: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
+      overflow: hidden;
     }
     #box-digital {
-      /* 維持預設 block */
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .panel {
+      padding: clamp(8px, 2.4vmin, 16px);
     }
     .clock-wrap {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
       margin-bottom: 0;
     }
     svg.clock-svg {
-      width: min(56vw, 260px);
-      height: auto;
+      width: auto;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
     }
     .digit-box {
-      width: clamp(64px, 22vw, 110px);
-      height: clamp(62px, 20vw, 100px);
-      font-size: clamp(2rem, 10vw, 3.8rem);
+      width: clamp(40px, var(--dt-box-w, 20vmin), 200px);
+      height: clamp(38px, var(--dt-box-h, 18vmin), 180px);
+      font-size: clamp(1.1rem, var(--dt-box-font, 10vmin), 6rem);
     }
     .colon {
-      font-size: clamp(2rem, 9vw, 3.5rem);
+      font-size: clamp(1rem, var(--dt-colon-font, 9vmin), 5.5rem);
       padding-top: 0;
       padding-bottom: 0;
-      margin-top: -8px;
+      margin-top: clamp(-20px, calc(var(--dt-colon-pad, 2vmin) * -1), -4px);
       height: auto;
       align-self: center;
     }
     .ctrl-btn {
-      width: clamp(30px, 9vw, 42px);
-      height: clamp(30px, 9vw, 42px);
-      font-size: clamp(0.8rem, 3.5vw, 1.1rem);
-    }
-    .time-sentence {
-      margin-top: 0;
-      padding: 2px 16px;
-    }
-    .panel {
-      padding: 14px 16px;
+      width: clamp(18px, var(--dt-ctrl, 6vmin), 60px);
+      height: clamp(18px, var(--dt-ctrl, 6vmin), 60px);
+      font-size: clamp(0.55rem, var(--dt-ctrl-font, 2.4vmin), 1.6rem);
     }
     .digital-display {
-      margin-bottom: 0;
+      gap: clamp(4px, var(--dt-gap, 1.6vmin), 14px);
+      margin-bottom: clamp(4px, var(--dt-gap, 1.6vmin), 20px);
+    }
+    .min-arrows { gap: clamp(4px, var(--dt-small-gap, 1.3vmin), 10px); }
+    .digit-col  { gap: clamp(4px, var(--dt-small-gap, 1.3vmin), 10px); }
+    .time-sentence {
+      margin-top: 0;
+      padding: clamp(2px, 0.8vmin, 8px) clamp(10px, 3vmin, 24px);
+      width: 100%;
+    }
+    .time-sentence p {
+      gap: clamp(6px, 1.6vmin, 14px);
     }
   }
 
@@ -944,6 +985,92 @@ svg.addEventListener('touchend',   onPointerUp);
 
 // ── Init ──
 render();
+
+// ── 消除方框內部多餘留白 ──
+// 原理：以「圖形時鐘」這個長寬比固定為 1:1 的內容作為基準，量測它在目前
+// 版面下實際能撐到多大（受寬或高其中一者限制），再把這個「理想尺寸」
+// 同時套用到時鐘框與數字時間框的對應軸向上：
+//   直式（上下排列）→ 兩框寬度相同，若寬度比時鐘理想尺寸還寬，就縮減寬度、
+//                      並讓兩框在水平方向置中，消除左右留白。
+//   橫式（左右排列）→ 兩框高度相同，若高度比時鐘理想尺寸還高，就縮減高度、
+//                      並讓兩框在垂直方向置中，消除上下留白。
+// 兩框永遠维持彼此尺寸一致，只是視情況縮小，不會讓其中一框比另一框大。
+(function () {
+  const panelsEl   = document.querySelector('.panels');
+  const boxClockEl = document.getElementById('box-clock');
+  const boxDigiEl  = document.getElementById('box-digital');
+  const clockSvgEl = document.getElementById('clock-svg');
+  if (!panelsEl || !boxClockEl || !boxDigiEl || !clockSvgEl) return;
+
+  function resetPanelFit() {
+    boxClockEl.style.width  = '';
+    boxClockEl.style.height = '';
+    boxDigiEl.style.width   = '';
+    boxDigiEl.style.height  = '';
+    panelsEl.style.alignItems = '';
+  }
+
+  function applyPanelFit() {
+    // 先清除先前的內聯尺寸，讓瀏覽器依 CSS 規則重新計算「原始」版面，
+    // 才能量到目前這個尺寸下，時鐘理論上最大能撐多大。
+    resetPanelFit();
+    void panelsEl.offsetHeight; // 強制 reflow
+
+    const isPortrait = window.matchMedia('(orientation: portrait)').matches;
+    const svgRect = clockSvgEl.getBoundingClientRect();
+    // 注意：svg 元素本身的外框（getBoundingClientRect）不一定是正方形
+    // （例如橫式下 max-height 另有 vw 上限），實際畫出來的圓形時鐘會依
+    // SVG 的預設 preserveAspectRatio（xMidYMid meet）縮放到「較短的那一邊」
+    // 並置中，較長邊會有留白（letterboxing）。因此真正的時鐘直徑要取
+    // width 與 height 兩者中「較小」的一個，而不是較大的一個，
+    // 否則會把留白也誤算進時鐘尺寸，導致方框縮得不夠多。
+    const diameter = Math.min(svgRect.width, svgRect.height);
+    if (!diameter || !isFinite(diameter) || diameter <= 0) return;
+
+    const cs = getComputedStyle(boxClockEl);
+
+    if (isPortrait) {
+      // 直式：兩框上下排列，寬度共用，量測目前寬度是否比時鐘需要的還寬
+      const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+      const borderX = parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
+      const idealWidth = diameter + padX + borderX;
+      const availWidth = panelsEl.getBoundingClientRect().width;
+      const finalWidth = Math.min(idealWidth, availWidth);
+
+      if (finalWidth < availWidth - 0.5) {
+        boxClockEl.style.width = finalWidth + 'px';
+        boxDigiEl.style.width  = finalWidth + 'px';
+        panelsEl.style.alignItems = 'center';
+      }
+    } else {
+      // 橫式：兩框左右排列，高度共用，量測目前高度是否比時鐘需要的還高
+      const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+      const borderY = parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+      const idealHeight = diameter + padY + borderY;
+      const availHeight = boxClockEl.getBoundingClientRect().height;
+      const finalHeight = Math.min(idealHeight, availHeight);
+
+      if (finalHeight < availHeight - 0.5) {
+        boxClockEl.style.height = finalHeight + 'px';
+        boxDigiEl.style.height  = finalHeight + 'px';
+        panelsEl.style.alignItems = 'center';
+      }
+    }
+  }
+
+  let rafId = null;
+  function scheduleApplyPanelFit() {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(applyPanelFit);
+  }
+
+  window.addEventListener('resize', scheduleApplyPanelFit);
+  window.addEventListener('orientationchange', () => setTimeout(applyPanelFit, 60));
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(scheduleApplyPanelFit).observe(document.querySelector('.page-wrapper'));
+  }
+  applyPanelFit();
+})();
 
 // ── TTS 發音 ──
 const timeSentenceEl = document.querySelector('.time-sentence');
