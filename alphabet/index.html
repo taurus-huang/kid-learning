@@ -537,25 +537,30 @@ function typeColor(item) {
   return item.type === 'i' ? 'var(--ini)' : item.type === 'm' ? 'var(--med)' : item.type === 'f' ? 'var(--fin)' : 'var(--vow)';
 }
 
+// separate colors for uppercase vs lowercase stroke animation
+function typeColorUpper(item) { return typeColor(item); }
+function typeColorLower(item) { return 'var(--fin)'; }
+
 function splitStrokes(d) {
   return d.split(/\s(?=M)/).map(s => s.trim()).filter(Boolean);
 }
 
 function render(item) {
   const row = document.getElementById('dcardRow');
-  const color = typeColor(item);
+  const colorUpper = typeColorUpper(item);
+  const colorLower = typeColorLower(item);
   const dU = LETTER_PATHS[item.L] || '';
   const dL = LETTER_PATHS_LOWER[item.s] || '';
   row.innerHTML = `
-    <div class="sbox" title="重播筆劃動畫" style="color:${color}">
+    <div class="sbox" title="重播筆劃動畫">
       <div class="letter-stage">
-        <div class="slot-upper">
+        <div class="slot-upper" style="color:${colorUpper}">
           <svg viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet">
             <path class="guide" d="${dU}"></path>
             <g id="strokesUpper"></g>
           </svg>
         </div>
-        <div class="slot-lower">
+        <div class="slot-lower" style="color:${colorLower}">
           <svg viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet">
             <path class="guide" d="${dL}"></path>
             <g id="strokesLower"></g>
