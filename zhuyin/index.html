@@ -221,18 +221,29 @@ body{
 .imgarea img{ width:70%; height:70%; object-fit:contain; }
 .fb-emoji{ font-size:min(60cqh,60cqw); line-height:1; display:inline-block; }
 .wordrow{
-  display:flex; align-items:center; gap:6px; padding:10px 10px;
+  display:flex; align-items:center; gap:calc(var(--wordscale,1) * 0.2px); padding:10px 10px;
   background:#F7F8FA; border-top:1px solid #EEE; flex-wrap:wrap; justify-content:center;
 }
-.charblock{ display:flex; flex-direction:row; align-items:center; gap:2px; }
-.hz{ font-size:clamp(1.6rem,6.5vmin,3.4rem); font-weight:400; font-family:var(--fhz); line-height:1; }
+.wordrow.nowrap-fit{ flex-wrap:nowrap; }
+.charblock{ display:flex; flex-direction:row; align-items:center; gap:calc(var(--wordscale,1) * 0.2px); }
+.hz{ font-size:calc(var(--wordscale,1) * clamp(1.6rem,6.5vmin,3.4rem)); font-weight:400; font-family:var(--fhz); line-height:1; }
 .bpcol{ display:flex; flex-direction:column; align-items:center; }
-.bpchars{ display:flex; flex-direction:column; align-items:center; font-size:clamp(.5rem,2.4vmin,1.1rem); font-family:var(--fzh); color:#333; line-height:1.05; }
+.bpchars{ display:flex; flex-direction:column; align-items:center; font-size:calc(var(--wordscale,1) * clamp(.5rem,2.4vmin,1.1rem)); font-family:var(--fzh); color:#333; line-height:1.05; }
 .bpchars span{ display:block; text-align:center; }
 .tm-side{ display:flex; flex-direction:row; align-items:flex-end; }
-.tone-r{ font-size:clamp(.65rem,4vmin,2rem); color:#888; align-self:flex-end; position:relative; top:0.4em; left:-0.1em; }
-.tm-top{ display:flex; flex-direction:column; align-items:center; position:relative; top:-0.25em; }
-.tone-t{ font-size:clamp(.65rem,4vmin,2rem); color:#888; line-height:1; margin-bottom:-0.2em; }
+.tone-r{
+  font-size:calc(var(--wordscale,1) * clamp(.65rem,4vmin,2rem)); color:#888;
+  align-self:flex-end; position:relative; top:0.4em; left:-0.15em;
+  display:inline-block; width:0.55em; text-align:center;
+}
+/* 只有一個注音符號時，欄位本身較矮，原本固定的下移量會讓整組注音（含聲符）看起來太低，
+   這裡把整組（注音符號＋聲符）一起往上拉回來，而不是只動聲符（僅限二～四聲、有聲符的情況） */
+.tm-side:has(.bpchars span:only-child):has(.tone-r:not(:empty)){ position:relative; top:-0.38em; }
+.tm-side:has(.bpchars span:only-child):has(.tone-r:not(:empty)) .tone-r{ top:0.35em; }
+/* 只有一個注音符號、且是一聲（沒有聲符）時，讓注音符號往下移一些，與中文字垂直置中 */
+.tm-side:has(.bpchars span:only-child):has(.tone-r:empty){ position:relative; top:0.04em; }
+.tm-top{ display:flex; flex-direction:column; align-items:center; position:relative; top:-0.3em; }
+.tone-t{ font-size:calc(var(--wordscale,1) * clamp(.65rem,4vmin,2rem)); color:#888; line-height:1; margin-bottom:-0.2em; position:relative; top:0.15em; }
 
 .controls{
   display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:10px;
@@ -656,7 +667,7 @@ function mkCharBlocks(rdArr) {
     } else {
       bpHTML = `<div class="bpcol tm-side">
         <div class="bpchars">${pSpans}</div>
-        ${tc ? `<span class="tone-r">${tc}</span>` : ''}
+        <span class="tone-r">${tc}</span>
       </div>`;
     }
     return `<div class="charblock">
@@ -697,6 +708,53 @@ function render(item) {
 
   const imgbox = row.querySelector('.imgbox');
   imgbox.addEventListener('click', () => speakWord(item));
+
+  const wordrowEl = row.querySelector('.wordrow');
+  // 先量一次（多數情況下字型早已快取，這樣可避免閃爍）
+  fitWordRow(wordrowEl);
+  // 中文字型（Huninn / Noto Sans TC）是透過 @import 動態載入的，若量測當下字型還沒
+  // 真正套用完成，量出來的寬度會不準（用到瀏覽器預設字型，通常比較窄），導致誤判「裝得下」。
+  // 因此等字型真正就緒後，一定要再量一次、必要時重新套用縮小比例，確保不會超版。
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => {
+      // 確認使用者還在看同一張卡片（避免翻頁後量到舊的節點）
+      if (document.getElementById('dcardRow').contains(wordrowEl)) fitWordRow(wordrowEl);
+    }).catch(() => {});
+  }
+}
+
+// 只有在「圖片文字區」實際寬度不足、文字被迫換成兩行時，才縮小文字與注音的大小，
+// 讓它們能擠回同一行；空間足夠時完全不受影響（--wordscale 維持預設值 1）。
+function fitWordRow(el) {
+  if (!el) return;
+  el.style.removeProperty('--wordscale');
+  el.classList.remove('nowrap-fit');
+  // 用 nowrap 量出這一整排文字「不換行」時實際需要的寬度
+  el.classList.add('nowrap-fit');
+  const containerWidth = el.clientWidth;
+  const neededWidth = el.scrollWidth;
+  if (containerWidth > 0 && neededWidth > containerWidth) {
+    let scale = (containerWidth / neededWidth) * 0.96; // 留一點安全邊距
+    scale = Math.max(0.5, Math.min(1, scale));
+    el.style.setProperty('--wordscale', scale.toFixed(3));
+  } else {
+    el.classList.remove('nowrap-fit');
+  }
+}
+
+// 視窗尺寸或方向改變時（例如手機旋轉），重新檢查目前顯示中的詞語是否需要縮小
+window.addEventListener('resize', () => {
+  const el = document.querySelector('#dcardRow .wordrow');
+  if (el && overlay.classList.contains('show')) fitWordRow(el);
+});
+
+// 保險機制：只要有任何字型載入完成（例如首次進站字型還在下載中），
+// 就重新檢查目前顯示中的詞語，避免量測時機早於字型套用完成而算錯寬度。
+if (document.fonts && document.fonts.addEventListener) {
+  document.fonts.addEventListener('loadingdone', () => {
+    const el = document.querySelector('#dcardRow .wordrow');
+    if (el && overlay.classList.contains('show')) fitWordRow(el);
+  });
 }
 
 function animStrokes(item) {
