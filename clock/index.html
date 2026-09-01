@@ -298,12 +298,76 @@
     container-name: digital-speech;
   }
   .time-sentence .big-time {
-    font-size: clamp(1.1rem, 9cqw, 4rem);
+    font-size: clamp(0.8rem, 6.4cqw, 2.9rem);
   }
   .speak-icon-btn {
-    width: clamp(28px, 13cqw, 60px);
-    height: clamp(28px, 13cqw, 60px);
-    font-size: clamp(0.8rem, 6cqw, 1.5rem);
+    width: clamp(22px, 10cqw, 46px);
+    height: clamp(22px, 10cqw, 46px);
+    font-size: clamp(0.65rem, 4.6cqw, 1.15rem);
+  }
+
+  /* 每個中文字右側附上直式注音 */
+  .big-time {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 3px;
+  }
+  .zhuyin-char {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .zhuyin-char .hanzi {
+    line-height: 1;
+  }
+  /* 注音符號本體：直式排列（改用逐字堆疊，位置更精準），與中文字垂直置中對齊 */
+  .zhuyin-wrap {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: -0.02em;
+    margin-right: 0.14em;
+  }
+  .zhuyin-wrap .zy-sym {
+    font-family: 'Baloo 2', 'Nunito', sans-serif;
+    font-size: 0.32em;
+    line-height: 1.1;
+    opacity: 0.8;
+    display: block;
+  }
+  /* 一聲到四聲的調號：置於注音右側（韻母右上方） */
+  .zhuyin-wrap .tone-mark {
+    position: absolute;
+    font-family: 'Baloo 2', 'Nunito', sans-serif;
+    font-size: 0.6em;
+    line-height: 1;
+    opacity: 0.8;
+    right: -0.3em;
+  }
+  /* 只有一個注音符號（如聲母獨用）：調號在其右上方，且更靠左 */
+  .zhuyin-wrap .tone-n1 {
+    top: -55%;
+    right: -0.2em;
+  }
+  /* 兩個注音符號（聲母＋韻母）：調號在兩者之間，且稍微右移、下移 */
+  .zhuyin-wrap .tone-n2 {
+    top: 76%;
+    right: -0.3em;
+    transform: translateY(-50%);
+  }
+  /* 三個注音符號（聲母＋介母＋韻母）：調號在介母與韻母之間 */
+  .zhuyin-wrap .tone-n3 {
+    top: 80%;
+    transform: translateY(-50%);
+  }
+  /* 輕聲符號：置於注音正上方 */
+  .zhuyin-wrap .tone-5 {
+    top: -0.75em;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
   }
 
   .panel-label {
@@ -646,7 +710,7 @@
       <div class="time-sentence" id="box-speech">
         <p>
           <button class="speak-icon-btn" id="speak-btn" aria-label="播放發音" type="button">🔊</button>
-          <span class="big-time" id="time-text">十二點整</span>
+          <span class="big-time" id="time-text" data-plain="十二點整"><span class="zhuyin-char"><span class="hanzi">十</span><span class="zhuyin-wrap"><span class="zy-sym">ㄕ</span><span class="tone-mark tone-n1">ˊ</span></span></span><span class="zhuyin-char"><span class="hanzi">二</span><span class="zhuyin-wrap"><span class="zy-sym">ㄦ</span><span class="tone-mark tone-n1">ˋ</span></span></span><span class="zhuyin-char"><span class="hanzi">點</span><span class="zhuyin-wrap"><span class="zy-sym">ㄉ</span><span class="zy-sym">ㄧ</span><span class="zy-sym">ㄢ</span><span class="tone-mark tone-n3">ˇ</span></span></span><span class="zhuyin-char"><span class="hanzi">整</span><span class="zhuyin-wrap"><span class="zy-sym">ㄓ</span><span class="zy-sym">ㄥ</span><span class="tone-mark tone-n2">ˇ</span></span></span></span>
         </p>
       </div>
 
@@ -746,7 +810,9 @@ function render() {
   updateDragZone(dragMZ, mDeg, 42);
 
   // Sentence
-  timeText.textContent = toChineseTime(hour, minute);
+  const timeStr = toChineseTime(hour, minute);
+  timeText.innerHTML = toZhuyinHtml(timeStr);
+  timeText.dataset.plain = timeStr;
 }
 
 function updateDragZone(el, deg, handLen) {
@@ -759,6 +825,43 @@ function updateDragZone(el, deg, handLen) {
 
 // ── Chinese time text ──
 const cnNums = ['零','一','二','三','四','五','六','七','八','九','十','十一','十二'];
+
+// 注音對照表（僅涵蓋此頁面時間句子可能出現的國字）
+// base：不含調號的注音符號；tone：1~4 為一聲~四聲，5 為輕聲，1 聲不標調號
+const zhuyinMap = {
+  '零': { base: 'ㄌㄧㄥ', tone: 2 },
+  '一': { base: 'ㄧ',     tone: 1 },
+  '二': { base: 'ㄦ',     tone: 4 },
+  '三': { base: 'ㄙㄢ',   tone: 1 },
+  '四': { base: 'ㄙ',     tone: 4 },
+  '五': { base: 'ㄨ',     tone: 3 },
+  '六': { base: 'ㄌㄧㄡ', tone: 4 },
+  '七': { base: 'ㄑㄧ',   tone: 1 },
+  '八': { base: 'ㄅㄚ',   tone: 1 },
+  '九': { base: 'ㄐㄧㄡ', tone: 3 },
+  '十': { base: 'ㄕ',     tone: 2 },
+  '兩': { base: 'ㄌㄧㄤ', tone: 3 },
+  '點': { base: 'ㄉㄧㄢ', tone: 3 },
+  '半': { base: 'ㄅㄢ',   tone: 4 },
+  '整': { base: 'ㄓㄥ',   tone: 3 },
+  '分': { base: 'ㄈㄣ',   tone: 1 }
+};
+const toneMarks = { 2: 'ˊ', 3: 'ˇ', 4: 'ˋ', 5: '˙' };
+
+// 將中文時間字串轉為「每個字＋右側直式注音（含正確調號位置）」的 HTML
+function toZhuyinHtml(str) {
+  return [...str].map(ch => {
+    const zy = zhuyinMap[ch];
+    if (!zy) return `<span class="zhuyin-char"><span class="hanzi">${ch}</span></span>`;
+    const mark = toneMarks[zy.tone];
+    const syms = [...zy.base]; // 注音符號逐字拆開，方便精準定位調號
+    const n = syms.length;
+    const symsHtml = syms.map(s => `<span class="zy-sym">${s}</span>`).join('');
+    const toneHtml = mark ? `<span class="tone-mark tone-${zy.tone} tone-n${n}">${mark}</span>` : '';
+    return `<span class="zhuyin-char"><span class="hanzi">${ch}</span><span class="zhuyin-wrap">${symsHtml}${toneHtml}</span></span>`;
+  }).join('');
+}
+
 function toChineseTime(h, m) {
   const hStr = (h === 2 ? '兩' : cnNums[h]) + '點';
   if (m === 0) return hStr + '整';
@@ -1078,7 +1181,7 @@ timeSentenceEl.style.cursor = 'pointer';
 timeSentenceEl.addEventListener('click', () => {
   if (!window.speechSynthesis) return;
   speechSynthesis.cancel();
-  const utt = new SpeechSynthesisUtterance(timeText.textContent);
+  const utt = new SpeechSynthesisUtterance(timeText.dataset.plain || timeText.textContent);
   utt.lang = 'zh-TW';
   utt.rate = 0.85;
   utt.onstart = () => timeSentenceEl.classList.add('speaking');
