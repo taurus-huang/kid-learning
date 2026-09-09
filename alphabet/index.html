@@ -485,6 +485,21 @@ closeBtn.addEventListener('click', closeModal);
 overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
+// 建立字母 -> 索引對照表，供鍵盤事件查詢
+const LETTER_INDEX = {};
+LETTERS.forEach((item, idx) => { LETTER_INDEX[item.L] = idx; });
+
+// 按下鍵盤上的英文字母鍵時，跳出對應的英文字母 popup
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const key = e.key;
+  if (typeof key !== 'string' || key.length !== 1) return;
+  const upper = key.toUpperCase();
+  if (Object.prototype.hasOwnProperty.call(LETTER_INDEX, upper)) {
+    openLetter(LETTER_INDEX[upper]);
+  }
+});
+
 function refitPopupIfOpen() { if (overlay.classList.contains('show')) fitPopup(); }
 window.addEventListener('resize', () => requestAnimationFrame(refitPopupIfOpen));
 window.addEventListener('orientationchange', () => setTimeout(refitPopupIfOpen, 150));
