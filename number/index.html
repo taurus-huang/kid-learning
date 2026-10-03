@@ -32,26 +32,42 @@
   }
   .grid{
     display:grid;
-    grid-template-columns:repeat(10,1fr);
+    grid-template-columns:repeat(10,minmax(0,1fr)); /* minmax(0,..) 讓每欄真正均分，不被內容撐開 */
     gap:8px;
+    width:100%;
     max-width:1100px;
     margin:0 auto;
   }
   .num-btn{
-    aspect-ratio:1/1;
+    /* 用 padding-bottom:100% 做正方形（舊版 Safari 對 button + aspect-ratio 不穩定） */
+    position:relative;
+    display:block;
+    width:100%;
+    min-width:0;
+    height:0;
+    padding:0 0 100% 0;
+    margin:0;
+    -webkit-appearance:none;
+    appearance:none;
     border:none;
     border-radius:16px;
     font-family:var(--font);
     font-size:clamp(18px,3.2vw,40px);
     font-weight:700;
+    line-height:1;
     color:#3d2b1f;
     cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:center;
     box-shadow:0 4px 0 rgba(0,0,0,0.15), 0 6px 10px rgba(0,0,0,0.08);
     transition:transform .12s ease, box-shadow .12s ease;
     user-select:none;
+  }
+  .num-btn span{
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    pointer-events:none;
   }
   .num-btn:hover{
     transform:translateY(-3px) scale(1.08);
@@ -308,7 +324,9 @@ const gridEl = document.getElementById('grid');
 for(let n = 0; n <= 100; n++){
   const btn = document.createElement('button');
   btn.className = 'num-btn';
-  btn.textContent = n;
+  const label = document.createElement('span');
+  label.textContent = n;
+  btn.appendChild(label);
   btn.style.background = palette[Math.floor(n/10) % palette.length];
   btn.addEventListener('click', () => openNumber(n));
   gridEl.appendChild(btn);
