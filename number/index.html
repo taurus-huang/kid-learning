@@ -141,11 +141,17 @@
     height:clamp(30px,6vw,40px);
     flex-shrink:0;
     border-radius:50%;
-    font-size:clamp(16px,3vw,20px);
-    font-weight:800;
+    padding:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    -webkit-appearance:none;
+    appearance:none;
     cursor:pointer;
     transition:transform .12s ease, box-shadow .12s ease, background-color .12s ease;
   }
+  /* 用 SVG 畫 X，不受字體影響，才能真正置中；大小為按鈕的 55% */
+  .close-btn svg{ width:55%; height:55%; display:block; }
   .close-btn:hover{
     background:#ffc2c2;
     transform:scale(1.1);
@@ -258,7 +264,12 @@
 <div class="overlay" id="overlay">
   <div class="modal">
     <div class="modal-header">
-      <button class="close-btn" id="closeBtn">✕</button>
+      <button class="close-btn" id="closeBtn" aria-label="關閉">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round">
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+        </svg>
+      </button>
     </div>
     <div class="modal-scroll">
       <div class="digits-row" id="digitsRow"></div>
