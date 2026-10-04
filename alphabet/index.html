@@ -382,14 +382,35 @@ const LETTER_PATHS_LOWER = {
 const chartEl = document.getElementById('chart');
 const chartWrapEl = document.getElementById('chartWrap');
 
+// Static Noto Emoji image (512.png on Google's server is the non-animated version; 512.webp / 512.gif are animated)
+function notoSources(item) {
+  return [`https://fonts.gstatic.com/s/e/notoemoji/latest/${item.ecode}/512.png`];
+}
+
+function loadNotoImg(item, containerEl, fallbackClass) {
+  const srcs = notoSources(item);
+  let i = 0;
+  const img = new Image();
+  img.alt = item.word;
+  img.decoding = 'async';
+  img.onerror = () => {
+    i++;
+    if (i < srcs.length) { img.src = srcs[i]; return; }
+    const span = document.createElement('span');
+    if (fallbackClass) span.className = fallbackClass; else span.style.fontSize = '1.6em';
+    span.textContent = item.emoji;
+    containerEl.replaceChildren(span);
+  };
+  img.src = srcs[0];
+  containerEl.replaceChildren(img);
+}
+
 function loadButtonIcon(item, animEl) {
-  const svgUrl = `https://raw.githubusercontent.com/googlefonts/noto-emoji/main/svg/emoji_u${item.ecode}.svg`;
-  animEl.innerHTML = `<img src="${svgUrl}" alt="${item.word}" onerror="this.parentElement.innerHTML='<span style=\\'font-size:1.6em\\'>${item.emoji}</span>'" />`;
+  loadNotoImg(item, animEl, null);
 }
 
 function renderStaticPopupIcon(item, containerEl) {
-  const svgUrl = `https://raw.githubusercontent.com/googlefonts/noto-emoji/main/svg/emoji_u${item.ecode}.svg`;
-  containerEl.innerHTML = `<img src="${svgUrl}" alt="${item.word}" onerror="this.parentElement.innerHTML='<span class=\\'fb-emoji\\'>${item.emoji}</span>'" />`;
+  loadNotoImg(item, containerEl, 'fb-emoji');
 }
 
 function loadPopupIcon(item, containerEl, myGen) {
