@@ -470,7 +470,8 @@
     100% { transform: translateX(2vw) scaleX(-1); }
   }
 
-  /* 針對 Windows 10 22H2 系統鏡像翻轉蝸牛的方向 */
+  /* 針對「蝸牛 Emoji 頭部朝右」的系統（Windows 10 的 Segoe UI Emoji、
+     Apple 的 Apple Color Emoji：iOS／iPadOS／macOS）鏡像翻轉蝸牛的方向 */
   body.win10-22h2 .bug-snail {
     animation-name: crawlSnailWin10;
   }
@@ -978,7 +979,7 @@
       });
     })();
 
-    // 🐌 檢測是否為 Windows 10 22H2 系統，若是則加上 win10-22h2 class 以鏡像翻轉蝸牛
+    // 🐌 檢測蝸牛 Emoji 頭部朝右的系統（Windows 10、Apple 全系列），若是則加上 win10-22h2 class 以鏡像翻轉蝸牛
     (function(){
       function applyWin10_22H2_Class() {
         document.body.classList.add('win10-22h2');
@@ -986,6 +987,16 @@
 
       const ua = navigator.userAgent;
       const isWin = /Windows NT 10\.0/.test(ua);
+
+      // Apple 系統（iPhone／iPad／iPod／Mac）使用 Apple Color Emoji，蝸牛頭部朝右。
+      // iPadOS 13+ 的 Safari 預設以桌面版 UA（Macintosh）識別，因此用觸控點數區分 iPad 與 Mac；
+      // 兩者字型相同，所以不論是否為 iPad，一律視為 Apple 系統處理。
+      // 注意：iOS／iPadOS 上的所有瀏覽器（Chrome、Firefox 等）都使用 WebKit 與 Apple 字型。
+      const isApple = /iPhone|iPad|iPod|Macintosh|Mac OS X/.test(ua) ||
+                      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (isApple) {
+        applyWin10_22H2_Class();
+      }
 
       if (isWin) {
         if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
