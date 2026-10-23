@@ -103,12 +103,14 @@ body{
 /* modal */
 .overlay{
   position:fixed; inset:0;
+  height:100dvh;
   background:rgba(40,30,20,0.55);
   display:none;
   align-items:center;
   justify-content:center;
   z-index:50;
-  padding:16px;
+  padding:clamp(6px,2dvh,16px) 16px;
+  overflow-y:auto;
 }
 .overlay.show{ display:flex; }
 .modal{
@@ -116,15 +118,27 @@ body{
   backdrop-filter:blur(6px);
   -webkit-backdrop-filter:blur(6px);
   border-radius:28px;
-  padding:clamp(52px,9vmin,76px) clamp(18px,4vmin,48px) clamp(28px,5vmin,48px);
+  padding:clamp(50px,8dvh,76px) clamp(18px,4vmin,48px) clamp(14px,4dvh,48px);
   max-width:min(94vw,1200px);
-  max-height:92vh;
-  max-height:92dvh;
-  overflow:hidden;
+  max-height:min(96dvh,900px);
+  overflow-y:auto;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
   text-align:center;
   box-shadow:0 20px 50px rgba(0,0,0,0.35);
   position:relative;
+  display:flex;
+  flex-direction:column;
+  flex-shrink:0;
+  margin:auto;
   animation:pop .25s ease;
+}
+.modal::-webkit-scrollbar{ display:none; }
+@media (orientation: landscape){
+  .modal{
+    padding:clamp(36px,6dvh,60px) clamp(24px,4vw,56px) clamp(10px,3dvh,26px);
+    max-width:min(96vw,1300px);
+  }
 }
 @keyframes pop{ from{transform:scale(.85);opacity:0} to{transform:scale(1);opacity:1} }
 .close-btn{
@@ -145,31 +159,11 @@ body{
   gap:clamp(16px,3vmin,32px); margin:10px 0 20px;
 }
 @media (orientation: landscape){
-  .dcard-row{ flex-direction:row; align-items:stretch; }
-  :root{ --dbox: clamp(100px, min(30vw,55vh), 380px); }
+  .dcard-row{ flex-direction:row; align-items:stretch; margin:8px 0 12px; }
+  :root{ --dbox: clamp(120px, min(36vw, calc(100dvh - 150px)), 440px); }
 }
 @media (orientation: portrait){
-  :root{ --dbox: clamp(95px, min(60vw, calc((92vh - 220px) / 2)), 340px); }
-}
-/* dvh reflects the browser's actual visible area (excludes address/nav bars),
-   so it prevents the popup from being sized larger than what's really on screen */
-@supports (height: 100dvh){
-  .modal{ max-height:94dvh; }
-  @media (orientation: landscape){
-    :root{ --dbox: clamp(100px, min(30vw, calc(94dvh - 185px)), 380px); }
-    .modal{ padding-top:clamp(36px,8dvh,76px); padding-bottom:clamp(14px,3.5dvh,48px); }
-  }
-  @media (orientation: portrait){
-    :root{ --dbox: clamp(95px, min(60vw, calc((94dvh - 235px) / 2)), 340px); }
-  }
-  @media (orientation: landscape) and (max-height: 480px){
-    .modal{ padding:clamp(30px,7dvh,48px) clamp(12px,3vw,24px) clamp(14px,3.5dvh,20px); }
-    .close-btn{ width:28px; height:28px; font-size:13px; top:6px; right:8px; }
-    .dcard-row{ gap:clamp(10px,2vw,20px); margin:6px 0 8px; }
-    .controls{ gap:8px; margin-top:6px; }
-    .ctrl-btn{ padding:clamp(5px,1.4dvh,10px) clamp(8px,2vw,16px); font-size:clamp(11px,2.4dvh,15px); }
-    .ctrl-btn svg{ width:clamp(15px,3dvh,20px); height:clamp(15px,3dvh,20px); }
-  }
+  :root{ --dbox: clamp(90px, min(60vw, calc((100dvh - 280px) / 2)), 340px); }
 }
 .sbox{
   width:var(--dbox); height:var(--dbox);
@@ -248,6 +242,9 @@ body{
 .replay{ background:#ffe08a; color:#7a5200; }
 .prev,.next{ background:#c9f2c0; color:#245c1a; }
 .prev:disabled,.next:disabled{ opacity:.35; cursor:default; }
+@media (orientation: landscape){
+  .controls{ margin-top:6px; }
+}
 @media (orientation: portrait){
   .controls{ flex-wrap:nowrap; width:100%; gap:clamp(4px,2vw,12px); }
   .ctrl-btn{ flex:1 1 0; min-width:0; gap:clamp(2px,1.2vw,8px); padding:clamp(6px,1.8vw,14px) clamp(4px,2.4vw,22px); font-size:clamp(11px,3.1vw,20px); }
@@ -521,13 +518,6 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-function refitPopupIfOpen() { if (overlay.classList.contains('show')) fitPopup(); }
-window.addEventListener('resize', () => requestAnimationFrame(refitPopupIfOpen));
-window.addEventListener('orientationchange', () => setTimeout(refitPopupIfOpen, 150));
-if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', () => requestAnimationFrame(refitPopupIfOpen));
-}
-
 replayBtn.addEventListener('click', () => playIndex(currentIndex));
 prevBtn.addEventListener('click', () => { if (currentIndex > 0) playIndex(currentIndex - 1); });
 nextBtn.addEventListener('click', () => { if (currentIndex < LETTERS.length - 1) playIndex(currentIndex + 1); });
@@ -618,74 +608,9 @@ function render(item) {
   imgbox.addEventListener('click', () => speakWord(item));
 
   animateLetter();
-  fitPopup();
 
   const eaEl = document.getElementById('ea');
   loadPopupIcon(item, eaEl, animGen);
-}
-
-// Sizes the popup's two boxes (letter-trace + image/word) so the whole modal
-// always fits inside the browser's actually-visible area, on any screen size
-// or orientation — no clipping, and no scrollbar ever needed.
-function fitPopup() {
-  const modal = document.querySelector('.modal');
-  const row = document.getElementById('dcardRow');
-  if (!modal || !row) return;
-  const boxes = row.querySelectorAll('.sbox, .imgbox');
-  if (!boxes.length) return;
-
-  // Reset to CSS defaults first so measurements reflect natural sizing.
-  boxes.forEach(b => { b.style.width = ''; b.style.height = ''; });
-  modal.style.maxHeight = '';
-  modal.style.maxWidth = '';
-
-  const vv = window.visualViewport;
-  const viewportH = Math.round(vv ? vv.height : window.innerHeight);
-  const viewportW = Math.round(vv ? vv.width : window.innerWidth);
-  const overlayPadding = 32; // matches .overlay{ padding:16px } on each side
-
-  const maxModalH = Math.max(160, viewportH - overlayPadding);
-  const maxModalW = Math.min(Math.max(200, viewportW - overlayPadding), 1200);
-
-  // Cap the modal itself to what's actually visible on screen right now.
-  modal.style.maxHeight = maxModalH + 'px';
-  modal.style.maxWidth = maxModalW + 'px';
-
-  const cs = getComputedStyle(modal);
-  const padTop = parseFloat(cs.paddingTop) || 0;
-  const padBottom = parseFloat(cs.paddingBottom) || 0;
-  const padLeft = parseFloat(cs.paddingLeft) || 0;
-  const padRight = parseFloat(cs.paddingRight) || 0;
-
-  const controls = modal.querySelector('.controls');
-  const controlsH = controls ? controls.getBoundingClientRect().height : 0;
-  const controlsMT = controls ? (parseFloat(getComputedStyle(controls).marginTop) || 0) : 0;
-
-  const rowCS = getComputedStyle(row);
-  const rowMT = parseFloat(rowCS.marginTop) || 0;
-  const rowMB = parseFloat(rowCS.marginBottom) || 0;
-  const rowGap = parseFloat(rowCS.rowGap || rowCS.gap) || 0;
-  const colGap = parseFloat(rowCS.columnGap || rowCS.gap) || 0;
-
-  // Extra breathing room below the controls so they never sit flush against
-  // the modal's bottom edge, even though the boxes are sized to fit tightly.
-  const bottomSafety = 14;
-
-  const availContentH = maxModalH - padTop - padBottom - rowMT - rowMB - controlsH - controlsMT - bottomSafety;
-  const availContentW = maxModalW - padLeft - padRight;
-
-  const isRow = rowCS.flexDirection === 'row';
-  let size;
-  if (isRow) {
-    const byWidth = (availContentW - colGap) / 2;
-    size = Math.min(byWidth, availContentH, 380);
-  } else {
-    const byHeight = (availContentH - rowGap) / 2;
-    size = Math.min(byHeight, availContentW, 340);
-  }
-  size = Math.max(80, Math.floor(size));
-
-  boxes.forEach(b => { b.style.width = size + 'px'; b.style.height = size + 'px'; });
 }
 
 function buildStrokeGroup(groupEl, d) {
