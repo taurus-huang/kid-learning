@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>認識顏色</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--ink:#4a3b2a;--bg1:#e8f6ff;--bg2:#fff6dd}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;overflow:hidden}
+body{background:linear-gradient(160deg,var(--bg1),var(--bg2));color:var(--ink);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;user-select:none}
+#stage{position:absolute;inset:0}
+.ball{position:absolute;left:0;top:0;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;
+ font-family:"Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif;box-shadow:inset -6px -8px 0 rgba(0,0,0,.12),0 6px 14px rgba(0,0,0,.18);will-change:transform}
+.ball span{font-size:50%;line-height:1;pointer-events:none}
+.ball span,.big span{display:inline-block}
+.an0{animation:bounce 1.6s ease-in-out infinite}
+.an1{animation:wiggle 1.4s ease-in-out infinite}
+.an2{animation:pulse 1.8s ease-in-out infinite}
+.an3{animation:sway 2s ease-in-out infinite}
+@keyframes bounce{0%,100%{transform:translateY(6%) scale(1)}50%{transform:translateY(-12%) scale(1.1)}}
+@keyframes wiggle{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(12deg)}}
+@keyframes pulse{0%,100%{transform:scale(.9)}50%{transform:scale(1.15)}}
+@keyframes sway{0%,100%{transform:translateX(-8%) rotate(-7deg)}50%{transform:translateX(8%) rotate(7deg)}}
+.ball:active{filter:brightness(1.08)}
+#modal{position:fixed;inset:0;background:rgba(40,30,20,.55);display:none;align-items:center;justify-content:center;z-index:5;padding:16px}
+#modal.on{display:flex}
+.card{background:#fffdf7;border-radius:36px;padding:28px 32px;width:min(92vw,420px);text-align:center;position:relative;animation:pop .35s cubic-bezier(.3,1.6,.5,1);box-shadow:0 12px 40px rgba(0,0,0,.35)}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.big{width:min(48vw,200px);height:min(48vw,200px);margin:0 auto 14px;font-size:min(24vw,100px);box-shadow:inset -10px -12px 0 rgba(0,0,0,.12),0 8px 18px rgba(0,0,0,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:"Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif}
+.name{display:flex;justify-content:center;align-items:flex-start;gap:14px}
+.zc{display:flex;align-items:center;gap:2px}
+.lot{width:62%;height:62%}
+.han{font-size:clamp(56px,16vw,84px);font-weight:700;line-height:1.05}
+.zy{display:flex;align-items:center}
+.zs{writing-mode:vertical-rl;text-orientation:upright;font-size:clamp(18px,5vw,26px);line-height:1.05;letter-spacing:-1px}
+.tn{font-size:clamp(18px,5vw,26px);font-weight:700;margin-left:1px;align-self:center}
+.btns{display:flex;gap:12px;justify-content:center;margin-top:16px}
+button{font:inherit;font-size:20px;border:0;border-radius:999px;padding:10px 22px;cursor:pointer;background:#ffd45c;color:var(--ink);box-shadow:0 4px 0 #d9a91f}
+button.x{position:absolute;top:12px;right:12px;width:44px;height:44px;padding:0;display:flex;align-items:center;justify-content:center;background:#e53935;box-shadow:0 3px 0 #a82320}
+#again{width:72px;height:72px;padding:0;font-size:34px;line-height:1;display:flex;align-items:center;justify-content:center}
+button:active{transform:translateY(3px);box-shadow:none}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="modal"><div class="card" id="card"></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+<script>
+// c=背景色 e=emoji o=物品 n=顏色名[字,注音,聲調] s=語音文字 l=Noto動態Emoji編號(Lottie)
+const D=[
+{c:"#f04141",e:"🍎",o:"蘋果",n:[["紅","ㄏㄨㄥ","ˊ"],["色","ㄙㄜ","ˋ"]],s:"紅色",l:"1f34e"},
+{c:"#f07000",e:"🍊",o:"橘子",n:[["橘","ㄐㄩ","ˊ"],["色","ㄙㄜ","ˋ"]],s:"橘色",l:"1f34a"},
+//{c:"#ffd900",e:"🚕",o:"計程車",n:[["黃","ㄏㄨㄤ","ˊ"],["色","ㄙㄜ","ˋ"]],s:"黃色",l:"1f695"},
+{c:"#ffd900",e:"🧀",o:"乳酪",n:[["黃","ㄏㄨㄤ","ˊ"],["色","ㄙㄜ","ˋ"]],s:"黃色",l:"1f9c0"},
+{c:"#4cc35a",e:"🍃",o:"葉子",n:[["綠","ㄌㄩ","ˋ"],["色","ㄙㄜ","ˋ"]],s:"綠色",l:"1f343"},
+{c:"#4a7bf0",e:"🫐",o:"藍莓",n:[["藍","ㄌㄢ","ˊ"],["色","ㄙㄜ","ˋ"]],s:"藍色",l:"1fad0"},
+{c:"#9b59d6",e:"🍇",o:"葡萄",n:[["紫","ㄗ","ˇ"],["色","ㄙㄜ","ˋ"]],s:"紫色",l:"1f347"},
+{c:"#ff8fbd",e:"🌸",o:"櫻花",n:[["粉","ㄈㄣ","ˇ"],["紅","ㄏㄨㄥ","ˊ"],["色","ㄙㄜ","ˋ"]],s:"粉紅色",l:"1f338"},
+{c:"#a06040",e:"🐻",o:"棕熊",n:[["棕","ㄗㄨㄥ",""],["色","ㄙㄜ","ˋ"]],s:"棕色",l:"1f43b"},
+{c:"#9aa0a6",e:"🐀",o:"老鼠",n:[["灰","ㄏㄨㄟ",""],["色","ㄙㄜ","ˋ"]],s:"灰色",l:"1f400"},
+{c:"#2b2b2b",e:"🕷️",o:"蜘蛛",n:[["黑","ㄏㄟ",""],["色","ㄙㄜ","ˋ"]],s:"黑色",l:"1f577_fe0f"},
+{c:"#ffffff",e:"☁️",o:"白雲",n:[["白","ㄅㄞ","ˊ"],["色","ㄙㄜ","ˋ"]],s:"白色",l:"2601_fe0f"}
+];
+const stage=document.getElementById('stage'),modal=document.getElementById('modal'),card=document.getElementById('card');
+let W,H,R,balls=[],paused=false,cur=null;
+function size(){W=innerWidth;H=innerHeight;R=Math.max(42,Math.min(72,Math.min(W,H)*.11))}
+function init(){
+ size();
+ D.forEach((d,i)=>{
+  const el=document.createElement('div');el.className='ball';
+  el.style.cssText+=`width:${R*2}px;height:${R*2}px;background:${d.c};font-size:${R*2}px;`+(d.c==='#ffffff'?'border:3px solid #d9d9d9;':'');
+  el.setAttribute('aria-label',d.s);
+  el.addEventListener('pointerdown',ev=>{ev.preventDefault();open(d)});
+  stage.appendChild(el);
+  const a=Math.random()*6.28,v=.35+Math.random()*.35;
+  balls.push({el,x:R+Math.random()*(W-2*R),y:R+Math.random()*(H-2*R-20),vx:Math.cos(a)*v,vy:Math.sin(a)*v});
+ });
+}
+function tick(){
+ if(!paused){
+  const top=0;
+  for(const b of balls){
+   b.x+=b.vx;b.y+=b.vy;
+   if(b.x<0){b.x=0;b.vx=Math.abs(b.vx)}
+   if(b.x>W-2*R){b.x=W-2*R;b.vx=-Math.abs(b.vx)}
+   if(b.y<top){b.y=top;b.vy=Math.abs(b.vy)}
+   if(b.y>H-2*R){b.y=H-2*R;b.vy=-Math.abs(b.vy)}
+  }
+  for(let i=0;i<balls.length;i++)for(let j=i+1;j<balls.length;j++){
+   const a=balls[i],b=balls[j],dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);
+   if(d<2*R&&d>0){
+    const nx=dx/d,ny=dy/d,p=(2*R-d)/2;
+    a.x-=nx*p;a.y-=ny*p;b.x+=nx*p;b.y+=ny*p;
+    const dv=(a.vx-b.vx)*nx+(a.vy-b.vy)*ny;
+    if(dv>0){a.vx-=dv*nx;a.vy-=dv*ny;b.vx+=dv*nx;b.vy+=dv*ny}
+   }
+  }
+  for(const b of balls)b.el.style.transform=`translate(${b.x}px,${b.y}px)`;
+ }
+ requestAnimationFrame(tick);
+}
+function loadLottie(d){
+ if(!window.lottie||!d.l)return;
+ fetch('https://fonts.gstatic.com/s/e/notoemoji/latest/'+d.l+'/lottie.json')
+  .then(r=>{if(!r.ok)throw 0;return r.json()})
+  .then(data=>{
+   const sp=card.querySelector('.big span');
+   if(cur!==d||!sp)return;
+   const box=document.createElement('div');box.className='lot';
+   sp.replaceWith(box);
+   lottie.loadAnimation({container:box,renderer:'svg',loop:true,autoplay:true,animationData:data});
+  }).catch(()=>{}); // 載入失敗時保留原本的 Emoji 動畫
+}
+let zhVoice=null;
+function pickVoice(){
+ const v=speechSynthesis.getVoices();
+ zhVoice=v.find(x=>/zh[-_]TW/i.test(x.lang))||v.find(x=>/zh/i.test(x.lang))||null;
+}
+if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function speak(t){
+ if(!('speechSynthesis' in window))return;
+ try{
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t);
+  u.lang='zh-TW';if(zhVoice)u.voice=zhVoice;u.rate=.75;u.pitch=1.15;
+  speechSynthesis.speak(u);
+ }catch(e){}
+}
+function open(d){
+ cur=d;
+ const name=d.n.map(([h,z,t])=>`<div class="zc"><span class="han">${h}</span><span class="zy"><span class="zs">${z}</span>${t?`<span class="tn">${t}</span>`:''}</span></div>`).join('');
+ card.innerHTML=`<div class="big" style="background:${d.c};${d.c==='#ffffff'?'border:4px solid #d9d9d9;':''}"><span class="an${D.indexOf(d)%4}">${d.e}</span></div>
+ <div class="name">${name}</div>
+ <button class="x" id="close" aria-label="關閉"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
+ <div class="btns"><button id="again" aria-label="再聽一次">🔊</button></div>`;
+ modal.classList.add('on');
+ loadLottie(d);
+ document.getElementById('again').onclick=e=>{e.stopPropagation();speak(d.s)};
+ document.getElementById('close').onclick=close;
+ speak(d.s);
+}
+function close(){modal.classList.remove('on');try{speechSynthesis.cancel()}catch(e){}}
+modal.addEventListener('pointerdown',e=>{if(e.target===modal)close()});
+addEventListener('resize',()=>{size();balls.forEach(b=>{const s=R*2;b.el.style.width=b.el.style.height=b.el.style.fontSize=s+'px'})});
+init();tick();
+</script>
+</body>
+</html>
