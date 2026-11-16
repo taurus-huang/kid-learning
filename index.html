@@ -4,22 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>學習樂園</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/bpmf-huninn/index.css">
 <style>
   :root{
     --sky:   #BEE3FF; 
-    --cream: #FFF9F0; 
     --sun:   #FFD93D; 
     --coral: #E84040; 
     --grape: #7048D4; 
     --blue:  #4D96FF; 
     --grass: #22C55E; 
     --ink:   #2D2D2D; 
-    --white: #FFFFFF;
     --sky-top:   #4AAEFF; 
-    --grass-dark:#178A45; 
   }
 
   *{ box-sizing: border-box; }
@@ -32,7 +27,7 @@
     background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky) 55%, var(--sky) 100%);
     background-attachment: fixed; /* 天空固定貼齊視窗，捲動時不隨內容移動 */
     color: var(--ink);
-    font-family: 'Noto Sans TC', sans-serif;
+    font-family: 'Bpmf Huninn', sans-serif;
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
@@ -104,11 +99,11 @@
   }
 
   /* 5 種植物的搖擺動畫時長／延遲各自不同；實際水平位置改由 JS 隨機分佈 */
-  .p1 { left: 6%;  animation-duration: 3.5s; }
-  .p2 { left: 28%; animation-duration: 4.2s; animation-delay: -0.8s; }
-  .p3 { left: 50%; animation-duration: 3.8s; animation-delay: -1.5s; }
-  .p4 { left: 72%; animation-duration: 4.5s; animation-delay: -0.3s; }
-  .p5 { left: 92%; animation-duration: 3.2s; animation-delay: -2.1s; }
+  .p1 { animation-duration: 3.5s; }
+  .p2 { animation-duration: 4.2s; animation-delay: -0.8s; }
+  .p3 { animation-duration: 3.8s; animation-delay: -1.5s; }
+  .p4 { animation-duration: 4.5s; animation-delay: -0.3s; }
+  .p5 { animation-duration: 3.2s; animation-delay: -2.1s; }
 
   @keyframes plantSway {
     0% { transform: rotate(-5deg) scale(1); }
@@ -299,7 +294,6 @@
     9.5% { transform: translate(29.25vw, -22.8px) scaleX(-1); }
     10% { transform: translate(30vw, 0px) scaleX(-1); }
     12% { transform: translate(30vw, 0px) scaleX(-1); }
-    12% { transform: translate(30vw, 0px) scaleX(-1); }
     12.5% { transform: translate(30.75vw, -22.8px) scaleX(-1); }
     13% { transform: translate(31.5vw, -43.2px) scaleX(-1); }
     13.5% { transform: translate(32.25vw, -61.2px) scaleX(-1); }
@@ -321,7 +315,6 @@
     21.5% { transform: translate(44.25vw, -22.8px) scaleX(-1); }
     22% { transform: translate(45vw, 0px) scaleX(-1); }
     24% { transform: translate(45vw, 0px) scaleX(-1); }
-    24% { transform: translate(45vw, 0px) scaleX(-1); }
     24.5% { transform: translate(45.75vw, -22.8px) scaleX(-1); }
     25% { transform: translate(46.5vw, -43.2px) scaleX(-1); }
     25.5% { transform: translate(47.25vw, -61.2px) scaleX(-1); }
@@ -342,7 +335,6 @@
     33% { transform: translate(58.5vw, -43.2px) scaleX(-1); }
     33.5% { transform: translate(59.25vw, -22.8px) scaleX(-1); }
     34% { transform: translate(60vw, 0px) scaleX(-1); }
-    36% { transform: translate(60vw, 0px) scaleX(-1); }
     36% { transform: translate(60vw, 0px) scaleX(-1); }
     36.5% { transform: translate(60.75vw, -22.8px) scaleX(-1); }
     37% { transform: translate(61.5vw, -43.2px) scaleX(-1); }
@@ -387,7 +379,6 @@
     59.5% { transform: translate(60.75vw, -22.8px) scaleX(1); }
     60% { transform: translate(60vw, 0px) scaleX(1); }
     62% { transform: translate(60vw, 0px) scaleX(1); }
-    62% { transform: translate(60vw, 0px) scaleX(1); }
     62.5% { transform: translate(59.25vw, -22.8px) scaleX(1); }
     63% { transform: translate(58.5vw, -43.2px) scaleX(1); }
     63.5% { transform: translate(57.75vw, -61.2px) scaleX(1); }
@@ -409,7 +400,6 @@
     71.5% { transform: translate(45.75vw, -22.8px) scaleX(1); }
     72% { transform: translate(45vw, 0px) scaleX(1); }
     74% { transform: translate(45vw, 0px) scaleX(1); }
-    74% { transform: translate(45vw, 0px) scaleX(1); }
     74.5% { transform: translate(44.25vw, -22.8px) scaleX(1); }
     75% { transform: translate(43.5vw, -43.2px) scaleX(1); }
     75.5% { transform: translate(42.75vw, -61.2px) scaleX(1); }
@@ -430,7 +420,6 @@
     83% { transform: translate(31.5vw, -43.2px) scaleX(1); }
     83.5% { transform: translate(30.75vw, -22.8px) scaleX(1); }
     84% { transform: translate(30vw, 0px) scaleX(1); }
-    86% { transform: translate(30vw, 0px) scaleX(1); }
     86% { transform: translate(30vw, 0px) scaleX(1); }
     86.5% { transform: translate(29.25vw, -22.8px) scaleX(1); }
     87% { transform: translate(28.5vw, -43.2px) scaleX(1); }
@@ -599,79 +588,13 @@
     margin-bottom: clamp(1.5rem, 5vw, 3rem);
   }
 
-  .mascot{
-    width: clamp(56px, 10vw, 84px);
-    height: auto;
-    display: block;
-    margin: 0 auto 0.4rem;
-    animation: bob 3.2s ease-in-out infinite;
-  }
-
-  @keyframes bob{
-    0%, 100% { transform: translateY(0) rotate(-4deg); }
-    50%      { transform: translateY(-8px) rotate(4deg); }
-  }
-
   h1{
-    font-family: 'Huninn', sans-serif;
     font-weight: 400;
     font-size: clamp(1.8rem, 5vw, 2.8rem);
     margin: 0 0 0.3rem;
     color: var(--ink);
     letter-spacing: 0.05em;
     line-height: 1.6;
-  }
-
-  .zw{
-    display: inline-flex;
-    align-items: flex-start;
-    vertical-align: bottom;
-  }
-
-  .zw-bpmf{
-    position: relative;
-    display: inline-flex;
-    flex-direction: column;
-    align-items: flex-start;
-    line-height: 1.05;
-    margin-left: 0.1em;
-    margin-right: 0.42em;
-  }
-
-  .zw-bpmf span{
-    font-family: 'Noto Sans TC', sans-serif;
-    font-weight: 400;
-    font-size: 0.34em;
-    color: var(--ink);
-    opacity: 0.62;
-  }
-
-  .zw-bpmf .tone{
-    position: absolute;
-    left: 100%;
-    margin-left: 0.06em;
-    line-height: 1;
-  }
-
-  .zw-bpmf .tone-top{ top: 4%; transform: translateY(-50%); }
-  .zw-bpmf .tone-mid2{ top: 62%; transform: translateY(-50%); }
-  .zw-bpmf .tone-mid3{ top: 78%; transform: translateY(-50%); }
-  .zw-bpmf .tone-neutral{
-    left: 50%;
-    top: 0;
-    margin-left: 0;
-    transform: translate(-50%, -70%);
-  }
-
-  .zw-bpmf.n1{ top: 0.6em; }
-  .zw-bpmf.n2{ top: 0.45em; }
-  .zw-bpmf.n3{ top: 0.25em; }
-
-  header p{
-    margin: 0;
-    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-    color: var(--ink);
-    opacity: 0.75;
   }
 
   main{
@@ -734,11 +657,7 @@
   }
 
   .card__frame{
-    position: relative;
     z-index: 1;
-    width: 100%;
-    height: 100%;
-    border: none;
     border-radius: 12px;
   }
 
@@ -763,16 +682,10 @@
     justify-content: center;
     padding: 0.4rem 0.3rem 0.4rem 0.7rem;
     text-align: center;
-    font-family: 'Huninn', sans-serif;
     font-weight: 400;
     font-size: clamp(1.5rem, 4vw, 2rem);
     color: var(--ink);
   }
-
-  /* 卡片標題的注音在此字級/行高下預設偏低，微調往上貼近國字 */
-  .card__title .zw-bpmf.n1{ top: 0.3em; }
-  .card__title .zw-bpmf.n2{ top: 0.15em; }
-  .card__title .zw-bpmf.n3{ top: 0; }
 
   @media (hover: hover){
     .card:hover{
@@ -901,66 +814,35 @@
 
   <div class="scroll-container">
   <header>
-    <h1><span class="zw">學<span class="zw-bpmf n3"><span>ㄒ</span><span>ㄩ</span><span>ㄝ</span><span class="tone tone-mid3">ˊ</span></span></span><span class="zw">習<span class="zw-bpmf n2"><span>ㄒ</span><span>ㄧ</span><span class="tone tone-mid2">ˊ</span></span></span><span class="zw">樂<span class="zw-bpmf n2"><span>ㄌ</span><span>ㄜ</span><span class="tone tone-mid2">ˋ</span></span></span><span class="zw">園<span class="zw-bpmf n2"><span>ㄩ</span><span>ㄢ</span><span class="tone tone-mid2">ˊ</span></span></span></h1>
+    <h1>學習樂園</h1>
   </header>
 
   <main>
     <div class="card-grid" id="card-grid">
-      <!-- 卡片由下方 script 中的 MODULES 陣列自動產生，
-           新增子功能時只需要在該陣列加入一筆設定即可。 -->
+      <!-- 卡片由下方 script 中的 MODULES 陣列自動產生 -->
     </div>
   </main>
   </div>
 
   <script>
-    // 📋 子功能清單：日後新增子功能時，只需要在這裡加入一筆設定即可，
-    // 不必再到別處重複填寫路徑（href／iframe src／data-src 皆由 dir 自動組出）。
-    //   dir        子功能所在目錄名稱（會組成 "dir/index.html"）
-    //   title      卡片標題（含注音標示的 HTML，格式同下方範例）
-    //   plainTitle 卡片標題的純文字版本，用於 iframe 的 title 屬性（無障礙用途）
-    const MODULES = [
-      {
-        dir: 'number',
-        title: '<span class="zw">數<span class="zw-bpmf n2"><span>ㄕ</span><span>ㄨ</span><span class="tone tone-mid2">ˋ</span></span></span><span class="zw">字<span class="zw-bpmf n1"><span>ㄗ</span><span class="tone tone-top">ˋ</span></span></span>',
-        plainTitle: '數字'
-      },
-      {
-        dir: 'zhuyin',
-        title: '<span class="zw">注<span class="zw-bpmf n2"><span>ㄓ</span><span>ㄨ</span><span class="tone tone-mid2">ˋ</span></span></span><span class="zw">音<span class="zw-bpmf n2"><span>ㄧ</span><span>ㄣ</span></span></span><span class="zw">符<span class="zw-bpmf n2"><span>ㄈ</span><span>ㄨ</span><span class="tone tone-mid2">ˊ</span></span></span><span class="zw">號<span class="zw-bpmf n2"><span>ㄏ</span><span>ㄠ</span><span class="tone tone-mid2">ˋ</span></span></span>',
-        plainTitle: '注音符號'
-      },
-      {
-        dir: 'alphabet',
-        title: '<span class="zw">英<span class="zw-bpmf n2"><span>ㄧ</span><span>ㄥ</span></span></span><span class="zw">文<span class="zw-bpmf n2"><span>ㄨ</span><span>ㄣ</span><span class="tone tone-mid2">ˊ</span></span></span><span class="zw">字<span class="zw-bpmf n1"><span>ㄗ</span><span class="tone tone-top">ˋ</span></span></span><span class="zw">母<span class="zw-bpmf n2"><span>ㄇ</span><span>ㄨ</span><span class="tone tone-mid2">ˇ</span></span></span>',
-        plainTitle: '英文字母'
-      },
-      {
-        dir: 'clock',
-        title: '<span class="zw">時<span class="zw-bpmf n1"><span>ㄕ</span><span class="tone tone-top">ˊ</span></span></span><span class="zw">鐘<span class="zw-bpmf n3"><span>ㄓ</span><span>ㄨ</span><span>ㄥ</span></span></span>',
-        plainTitle: '時鐘'
-      },
-      {
-        dir: 'color',
-        title: '<span class="zw">顏<span class="zw-bpmf n2"><span>ㄧ</span><span>ㄢ</span><span class="tone tone-mid2">ˊ</span></span></span><span class="zw">色<span class="zw-bpmf n2"><span>ㄙ</span><span>ㄜ</span><span class="tone tone-mid2">ˋ</span></span></span>',
-        plainTitle: '顏色'
-      },
-    ];
+    // 📋 子功能清單：日後新增子功能時，只需要在這裡加入目錄名稱即可。
+    // 路徑（"dir/index.html"）與卡片標題（讀取該頁 <title>）皆由目錄名稱自動取得。
+    const MODULES = ['number', 'zhuyin', 'alphabet', 'clock', 'color'];
 
-    // 卡片預設輪替色（當 MODULES 內某筆設定沒有指定 color 時使用）
+    // 卡片輪替色
     const CARD_COLORS = ['var(--grass)', 'var(--coral)', 'var(--blue)', 'var(--sun)', 'var(--grape)'];
 
-    // 依 MODULES 陣列動態產生卡片，href／iframe src／data-src 都只由 dir 這單一來源組成，
-    // 避免像先前那樣同一個路徑要在好幾個地方重複打字。
+    // 依 MODULES 動態產生卡片；標題文字從子頁面的 <title> 讀取，
+    // 注音由「注音粉圓體」字型自動呈現。若讀取失敗（例如以 file:// 開啟），改顯示目錄名稱。
     (function renderCards(){
       const grid = document.getElementById('card-grid');
       if(!grid) return;
-      MODULES.forEach((mod, i) => {
-        const src = mod.dir + '/index.html';
-        const color = CARD_COLORS[i % CARD_COLORS.length];
+      MODULES.forEach((dir, i) => {
+        const src = dir + '/index.html';
 
         const card = document.createElement('a');
         card.className = 'card';
-        card.style.setProperty('--card-color', color);
+        card.style.setProperty('--card-color', CARD_COLORS[i % CARD_COLORS.length]);
         card.href = src;
         card.target = '_blank';
         card.rel = 'noopener';
@@ -970,17 +852,26 @@
         const iframe = document.createElement('iframe');
         iframe.className = 'card__frame';
         iframe.src = src;
-        iframe.title = mod.plainTitle;
         preview.appendChild(iframe);
 
         const titleEl = document.createElement('div');
         titleEl.className = 'card__title';
-        titleEl.setAttribute('data-src', src);
-        titleEl.innerHTML = mod.title;
 
         card.appendChild(preview);
         card.appendChild(titleEl);
         grid.appendChild(card);
+
+        fetch(src)
+          .then(res => res.text())
+          .then(html => {
+            const t = new DOMParser().parseFromString(html, 'text/html').querySelector('title');
+            return (t && t.textContent.trim()) || dir;
+          })
+          .catch(() => dir)
+          .then(title => {
+            titleEl.textContent = title;
+            iframe.title = title;
+          });
       });
     })();
 
@@ -1101,78 +992,6 @@
 
       layoutRainbow();
       window.addEventListener('resize', layoutRainbow);
-    })();
-
-    // 🀄 卡片標題：從各子功能頁面 <head> 內的 <title> 動態讀取文字，
-    // 並依字典轉換為直式注音（格式與「學習樂園」主標題一致）。
-    // 若因跨來源限制（例如以 file:// 開啟）讀取失敗，則保留卡片內建的預設標題內容。
-    (function(){
-      const ZHUYIN_DICT = {
-        '數': { letters: ['ㄕ','ㄨ'],      tone: 4 },
-        '字': { letters: ['ㄗ'],           tone: 4 },
-        '注': { letters: ['ㄓ','ㄨ'],      tone: 4 },
-        '音': { letters: ['ㄧ','ㄣ'],      tone: 1 },
-        '符': { letters: ['ㄈ','ㄨ'],      tone: 2 },
-        '號': { letters: ['ㄏ','ㄠ'],      tone: 4 },
-        '時': { letters: ['ㄕ'],           tone: 2 },
-        '鐘': { letters: ['ㄓ','ㄨ','ㄥ'], tone: 1 },
-        '英': { letters: ['ㄧ','ㄥ'],      tone: 1 },
-        '文': { letters: ['ㄨ','ㄣ'],      tone: 2 },
-        '母': { letters: ['ㄇ','ㄨ'],      tone: 3 },
-        '學': { letters: ['ㄒ','ㄩ','ㄝ'], tone: 2 },
-        '習': { letters: ['ㄒ','ㄧ'],      tone: 2 },
-        '樂': { letters: ['ㄌ','ㄜ'],      tone: 4 },
-        '園': { letters: ['ㄩ','ㄢ'],      tone: 2 },
-        '加': { letters: ['ㄐ','ㄧ','ㄚ'], tone: 1 },
-        '減': { letters: ['ㄐ','ㄧ','ㄢ'], tone: 3 },
-        '乘': { letters: ['ㄔ','ㄥ'],      tone: 2 },
-        '除': { letters: ['ㄔ','ㄨ'],      tone: 2 },
-        '法': { letters: ['ㄈ','ㄚ'],      tone: 3 },
-        '拼': { letters: ['ㄆ','ㄧ','ㄣ'], tone: 1 },
-        '單': { letters: ['ㄉ','ㄢ'],      tone: 1 },
-        '形': { letters: ['ㄒ','ㄧ','ㄥ'], tone: 2 },
-        '狀': { letters: ['ㄓ','ㄨ','ㄤ'], tone: 4 },
-        '顏': { letters: ['ㄧ','ㄢ'],      tone: 2 },
-        '色': { letters: ['ㄙ','ㄜ'],      tone: 4 },
-      };
-      const TONE_GLYPH = { 2: 'ˊ', 3: 'ˇ', 4: 'ˋ', 5: '˙' };
-
-      function renderChar(ch){
-        const entry = ZHUYIN_DICT[ch];
-        if(!entry){
-          return `<span class="zw">${ch}</span>`;
-        }
-        const n = Math.min(entry.letters.length, 3);
-        const letterSpans = entry.letters.map(l => `<span>${l}</span>`).join('');
-        let toneSpan = '';
-        if(entry.tone === 5){
-          toneSpan = `<span class="tone tone-neutral">˙</span>`;
-        } else if(entry.tone && entry.tone !== 1){
-          const posClass = n === 1 ? 'tone-top' : (n === 2 ? 'tone-mid2' : 'tone-mid3');
-          toneSpan = `<span class="tone ${posClass}">${TONE_GLYPH[entry.tone]}</span>`;
-        }
-        return `<span class="zw">${ch}<span class="zw-bpmf n${n}">${letterSpans}${toneSpan}</span></span>`;
-      }
-
-      function renderTitle(text){
-        return Array.from(text).map(renderChar).join('');
-      }
-
-      document.querySelectorAll('.card__title[data-src]').forEach(el => {
-        const src = el.getAttribute('data-src');
-        fetch(src)
-          .then(res => res.text())
-          .then(html => {
-            const doc = new DOMParser().parseFromString(html, 'text/html');
-            const title = (doc.querySelector('title') && doc.querySelector('title').textContent || '').trim();
-            if(title){
-              el.innerHTML = renderTitle(title);
-            }
-          })
-          .catch(() => {
-            // 讀取失敗時什麼都不做，保留卡片內建的預設標題內容
-          });
-      });
     })();
   </script>
 
